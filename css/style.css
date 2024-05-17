@@ -1,0 +1,92 @@
+.wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.title {
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+.title h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.grid {
+  margin: 0 auto;
+  max-width: 90%;
+  margin-top: 20px;
+  height: 50px;
+  border: 1px solid black;
+
+  display: flex;
+}
+
+.grid__item {
+  height: 100%;
+  border: 1px solid black;
+  flex: 1 1 50px;
+}
+
+.grid__item._current input{
+  background-color: rgba(20, 235, 70, 0.542);
+}
+
+.grid__item input{
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}
+
+.grid__arrow {
+  flex: 0 0 50px;
+}
+
+.grid__arrow button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+
+  font-weight: bold;
+  font-size: 27px;
+}
+
+.grid__arrow_left {}
+.grid__arrow_right {}
+
+.grid__roulette {
+  flex: 1 1 100%;
+  display: flex;
+}
+
+.states-table {
+  padding-right: 20px;
+}
+
+.states-table table {
+  margin: 0 auto;
+  margin-top: 20px;
+  width: 90%;
+  border: 1px solid black;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.states-table thead *,
+.states-table tbody tr * {
+  border: 1px solid black;
+  padding: 5px;
+  text-align: center;
+}
+
+.states-table thead * {
+  height: 100%;
+}
+
+.states-table_addStateButton {
+  display: block;
+  width: 20px;
+}

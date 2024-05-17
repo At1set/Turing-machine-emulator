@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/clearstyle.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Turing machine</title>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="title">
+      <h1>Эмулятор машины Тьюринга</h1>
+    </div>
+    <div class="grid">
+      <div class="grid__item grid__arrow grid__arrow_left">
+        <button type="button"><</button>
+      </div>
+      <div class="grid__roulette"></div>
+      <div class="grid__item grid__arrow grid__arrow_right">
+        <button type="button">></button>
+      </div>
+    </div>
+    <div class="states-table">
+      <table class="states-table__table">
+        <thead>
+          <tr>
+            <th></th>
+            <th colspan="2">Состояния</th>
+          </tr>
+          <tr>
+            <th scope="col">Алфавит</th>
+            <!-- Сюда добавляем состояния -->
+            <td class="states-table__state table-state">
+              <div class="table-state__content">q0</div>
+              <button></button>
+            </td>
+            <td class="states-table__state table-state">
+              <div class="table-state__content">q1</div>
+              <button></button>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
+          <tr>
+            <td>1</td>
+            <td>qo 1 r</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="states-table__buttons">
+        <button type="button">добавить букву</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./js/index.js"></script>
+</body>
+</html>
