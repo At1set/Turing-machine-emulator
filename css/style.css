@@ -1,6 +1,7 @@
 .wrapper {
   width: 100%;
   height: 100%;
+  overflow: auto;
 }
 
 .title {
@@ -89,4 +90,89 @@
 .states-table_addStateButton {
   display: block;
   width: 20px;
+}
+
+.states-table__state {
+  
+}
+
+.table-state {
+  position: relative;
+}
+
+.table-state button{
+  position: absolute;
+  display: block;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-state .table-state__content {
+  padding: 0;
+}
+
+.table-state__content input{
+  width: 100%;
+  min-width: 50px;
+  border: none;
+}
+
+.states-table tbody tr * {
+  padding: 0;
+}
+
+.states-table tbody  {
+  
+}
+
+.states-table tbody .table-state__transitionCeil input{
+  width: 100%;
+  border: none;
+}
+
+.table-modalWindow {
+  background-color: rgb(255, 249, 249);
+  position: absolute;
+  border: 1px solid black;
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+.table-modalWindow._active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.table-modalWindow__option {
+  padding: 5px 0;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+
+.table-modalWindow__option::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.table-modalWindow__option:not(:first-child) {
+  border-top: 1px solid black;
 }

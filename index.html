@@ -23,6 +23,11 @@
     </div>
     <div class="states-table">
       <table class="states-table__table">
+        <div class="states-table__modalWindow table-modalWindow">
+          <div class="table-modalWindow__option">Удалить текущую ячейку</div>
+          <div class="table-modalWindow__option">Добавить состояние справа</div>
+          <div class="table-modalWindow__option">Добавить состояние слева</div>
+        </div>
         <thead>
           <tr>
             <th></th>
@@ -32,12 +37,12 @@
             <th scope="col">Алфавит</th>
             <!-- Сюда добавляем состояния -->
             <td class="states-table__state table-state">
-              <div class="table-state__content">q0</div>
-              <button></button>
+              <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
+              <button>...</button>
             </td>
             <td class="states-table__state table-state">
-              <div class="table-state__content">q1</div>
-              <button></button>
+              <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
+              <button>...</button>
             </td>
           </tr>
         </thead>
@@ -45,8 +50,8 @@
           <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
           <tr>
             <td>1</td>
-            <td>qo 1 r</td>
-            <td></td>
+            <td class="table-state__transitionCeil"><input type="text" value="q0 1 r"></td>
+            <td class="table-state__transitionCeil"><input type="text" value="q0 1 r"></td>
           </tr>
         </tbody>
       </table>

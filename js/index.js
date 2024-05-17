@@ -75,4 +75,24 @@ window.onload = () => {
       roulette.updateWord(e.target.value, index)
     })
   })
+
+  const modalWindow = document.querySelector(".table-modalWindow") 
+  const buttons_CeilStates = document.querySelectorAll(".table-state button")
+  function openModalWindow(index) {
+    const target_button = buttons_CeilStates.item(index)
+    const left = window.getComputedStyle(modalWindow)
+    const top = target_button.getClientRects()[0].top
+    
+
+    modalWindow.classList.add("_active")
+    modalWindow.style.left = String(left)
+    modalWindow.style.top = String(top)
+    console.log(modalWindow.style)
+  }
+
+  buttons_CeilStates.forEach((e) => {
+    e.addEventListener('click', (e) => {
+      openModalWindow(Array.from(buttons_CeilStates).indexOf(e.target))
+    })
+  })
 }
