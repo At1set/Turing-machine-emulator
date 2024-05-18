@@ -15,7 +15,7 @@
   font-weight: bold;
 }
 
-.grid {
+.grid__wrapper {
   margin: 0 auto;
   max-width: 90%;
   margin-top: 20px;
@@ -25,10 +25,38 @@
   display: flex;
 }
 
+.grid__roulette .grid__item {
+  position: relative;
+}
+
+.grid__roulette .grid__item._focus::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 15px;
+  background-color: rgba(255, 5, 5, 0.304);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+}
+
 .grid__item {
   height: 100%;
   border: 1px solid black;
   flex: 1 1 50px;
+}
+
+.grid__item._current::after {
+  content: '↑';
+  font-size: 24px;
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: -80%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
 }
 
 .grid__item._current input{
@@ -63,21 +91,94 @@
   display: flex;
 }
 
+.grid__options {
+  margin: 0 auto;
+  margin-top: 20px;
+  max-width: 90%;
+  font-size: 24px;
+}
+
+.grid__options div {
+  padding: 5px 0;
+}
+
+.grid__insertWord {
+  display: flex;
+  flex-wrap: wrap;
+}
+.grid__insertWord input {
+  display: inline-block;
+  padding: 5px 10px;
+  max-height: 100%;
+  border: 1px solid black;
+  font-size: 20px;
+  flex: 1 1 auto;
+  max-width: 250px;
+  width: 100%;
+  min-width: 70px;
+}
+
+.grid__insertWord button {
+  border: 1px solid black;
+  background-color: transparent;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 5px;
+}
+.grid__abc {
+  display: flex;
+  align-items: center;
+}
+
+.grid__abc b {
+  font-size: 38px;
+}
+
+.grid__abc input{
+  transform: translateY(3px);
+  padding: 5px 10px;
+  max-height: 100%;
+  border: 1px solid black;
+  font-size: 20px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 70px;
+  max-width: 315px;
+}
+
+.grid__abc .gridAbc__button {
+  height: 100%;
+  padding: 0;
+}
+
+.gridAbc__button button {
+  border: 1px solid black;
+  background-color: transparent;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 5px;
+  transform: translateY(7.5%);
+}
+
 .states-table {
-  padding-right: 20px;
+  margin-top: 20px;
+}
+
+.states-table__wrapper {
+  overflow-x: auto;
 }
 
 .states-table table {
   margin: 0 auto;
   margin-top: 20px;
-  width: 90%;
-  border: 1px solid black;
   table-layout: fixed;
   border-collapse: collapse;
+  position: relative;
 }
 
 .states-table thead *,
 .states-table tbody tr * {
+  font-size: 20px;
   border: 1px solid black;
   padding: 5px;
   text-align: center;
@@ -87,16 +188,8 @@
   height: 100%;
 }
 
-.states-table_addStateButton {
-  display: block;
-  width: 20px;
-}
-
-.states-table__state {
-  
-}
-
 .table-state {
+  min-width: 120px;
   position: relative;
 }
 
@@ -112,10 +205,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
+}
+
+.table-state button:hover {
+  background-color: #aeaeae;
 }
 
 .table-state .table-state__content {
   padding: 0;
+  border: none;
 }
 
 .table-state__content input{
@@ -124,11 +223,34 @@
   border: none;
 }
 
-.states-table tbody tr * {
-  padding: 0;
+.table-state__content input._wrong {
+  background-color: rgba(255, 0, 0, 0.716);
+  animation: wrongState 1.2s ease 0s alternate;
 }
 
-.states-table tbody  {
+@keyframes wrongState {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  25% {
+    transform: translate(-10px, 2px);
+  }
+  50% {
+    transform: translate(0px, 0px);
+  }
+  75% {
+    transform: translate(10px, 2px);
+  }
+  100% {
+    transform: translate(0, 0px);
+  }
+}
+
+.states-table tbody tr * {
+  /* padding: 0; */
+}
+
+.states-table tbody td {
   
 }
 
@@ -137,22 +259,41 @@
   border: none;
 }
 
-.table-modalWindow {
+.states-table tbody tr:last-child, .states-table tbody tr:last-child td {
+  border: none;
+  padding: 0;
+}
+
+.states-table tbody tr:last-child td button{
+  width: 100%;
+  height: 100%;
+  display: block;
+  height: 36px;
+  border-top: none;
+}
+
+._table-modalWindow {
   background-color: rgb(255, 249, 249);
   position: absolute;
   border: 1px solid black;
   width: 30%;
+  max-width: 225px;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   opacity: 0;
   visibility: hidden;
+  transform: translate(-99%, -10%);
+  z-index: 6;
 }
 
-.table-modalWindow._active {
+._table-modalWindow._active {
+  transform: translate(-100%, -3%);
   opacity: 1;
   visibility: visible;
+  transition: 0.1s ease 0s;
+  transition-property: transform, opacity;
 }
 
 .table-modalWindow__option {
@@ -161,6 +302,10 @@
   position: relative;
   text-align: center;
   cursor: pointer;
+}
+
+.table-modalWindow__option:hover {
+  background-color: rgb(208, 255, 181);
 }
 
 .table-modalWindow__option::after {
@@ -174,5 +319,53 @@
 }
 
 .table-modalWindow__option:not(:first-child) {
+  border-top: 1px solid black;
+}
+
+.states-table thead tr th:last-child {
+}
+
+.states-table tbody tr:last-child td{
+  position: relative;
+}
+
+/* .states-table__buttons {
+  position: absolute;
+  width: 94px;
+  display: flex;
+  flex-direction: column;
+  left: 6.2%;
+  transform: translateY(200%);
+} */
+
+/* .states-table__buttons button{
+  padding: 5px;
+} */
+
+.states-table .word-table__input input {
+  width: 80px;
+  border: none;
+}
+
+.word-table__modalWindow._table-modalWindow_2 {
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  padding: 0;
+  border-top: none;
+}
+
+.word-table__modalWindow._table-modalWindow_2._active {
+  transition: none;
+  transform: translate(0, 100%); 
+}
+
+._table-modalWindow_2 .table-modalWindow_2__option {
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+._table-modalWindow_2 .table-modalWindow_2__option:not(:first-child) {
   border-top: 1px solid black;
 }

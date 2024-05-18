@@ -2,6 +2,8 @@ export default class Roulette {
   constructor(grid__roulette) {
     this.grid__roulette = grid__roulette
     this.word = []
+    this.dictionary = []
+    this.states = ["q0"]
     this.leftLetterPos = 0
     this.offset = 0
     this.startPos = 1
@@ -24,7 +26,6 @@ export default class Roulette {
   updateActiveCeil(index) {
     this.removeActiveCeil()
     const elements = Array.from(this.grid__roulette.children)
-    
     if (index != undefined) {
       elements[index].classList.add("_current")
       this.startPos = index + this.offset + 1
@@ -38,12 +39,14 @@ export default class Roulette {
     }
   }
 
-  updateWord(letter, index) {
-    if (this.word.length == 0 && !letter) return
-    if (letter) {
+  updateWord(letter, index, isBackSpace=false, isInsert=false) {
+    if (this.word.length == 0 && !letter && !isBackSpace) return
+    if (letter || isBackSpace) {
       let letterPos = index + this.offset
       if (letterPos >= 0) {
-        this.word[index + this.offset] = letter
+        if (isBackSpace) {this.word.splice(index, 1)}
+        else if (isInsert) this.word.splice(index, 0, letter)
+        else this.word[index + this.offset] = letter
       }
       else {
         letterPos = this.leftLetterPos - letterPos
@@ -54,7 +57,6 @@ export default class Roulette {
       }
       if (this.leftLetterPos > letterPos) this.leftLetterPos = letterPos
     }
-    
     const elements = Array.from(this.grid__roulette.children)
     elements.forEach((e, index) => {
       let current_letter = this.word[index + this.offset]

@@ -13,50 +13,85 @@
       <h1>Эмулятор машины Тьюринга</h1>
     </div>
     <div class="grid">
-      <div class="grid__item grid__arrow grid__arrow_left">
-        <button type="button"><</button>
+      <div class="grid__wrapper">
+        <div class="grid__item grid__arrow grid__arrow_left">
+          <button type="button"><</button>
+        </div>
+        <div class="grid__roulette"></div>
+        <div class="grid__item grid__arrow grid__arrow_right">
+          <button type="button">></button>
+        </div>
       </div>
-      <div class="grid__roulette"></div>
-      <div class="grid__item grid__arrow grid__arrow_right">
-        <button type="button">></button>
+      <div class="grid__options">
+        <div class="grid__insertWord">
+          <div>Введите слово: <input type="text"></div>
+          <div><button type="button">Вставить</button></div>
+        </div>
+        <div class="grid__abc">
+          Задайте словарь: <b>{</b><input type="text" value="0, 1"><b>}</b>
+          <div class="gridAbc__button"><button type="button">Задать</button></div>
+        </div>
       </div>
     </div>
     <div class="states-table">
-      <table class="states-table__table">
-        <div class="states-table__modalWindow table-modalWindow">
-          <div class="table-modalWindow__option">Удалить текущую ячейку</div>
-          <div class="table-modalWindow__option">Добавить состояние справа</div>
-          <div class="table-modalWindow__option">Добавить состояние слева</div>
+      <div class="states-table__wrapper">
+        <table class="states-table__table">
+          <div class="states-table__modalWindow _table-modalWindow table-modalWindow">
+            <div class="table-modalWindow__option">Добавить состояние</div>
+            <div class="table-modalWindow__option">Удалить текущую ячейку</div>
+            <div class="table-modalWindow__option">Добавить состояние справа</div>
+            <div class="table-modalWindow__option">Добавить состояние слева</div>
+          </div>
+          <thead>
+            <tr>
+              <th></th>
+              <th colspan="1">Состояния</th>
+            </tr>
+            <tr>
+              <th scope="col">Алфавит</th>
+              <!-- Сюда добавляем состояния -->
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
+                <button>...</button>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
+            <tr>
+              <td class="word-table__input"><input type="text" maxlength="1" value="0" data-lastvalue="0"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 _ S"></td>
+            </tr>
+            <tr>
+              <td class="word-table__input"><input type="text" maxlength="1" value="1" data-lastvalue="1"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 _ S"></td>
+            </tr>
+            <tr>
+              <td>
+                <button class="word-table__button">...</button>
+                <div class="word-table__modalWindow _table-modalWindow _table-modalWindow_2">
+                  <div class="table-modalWindow_2__option table-modalWindow__option">Добавить букву</div>
+                  <div class="table-modalWindow_2__option table-modalWindow__option">Удалить</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="startBlock">
+      <div class="startBlock__menu">
+        <button class="startBlock__start">Запуск</button>
+        <div class="startBlock__onStart">
+          <button class="startBlock__start">Пауза</button>
+          <button class="startBlock__start">Остановить</button>
         </div>
-        <thead>
-          <tr>
-            <th></th>
-            <th colspan="2">Состояния</th>
-          </tr>
-          <tr>
-            <th scope="col">Алфавит</th>
-            <!-- Сюда добавляем состояния -->
-            <td class="states-table__state table-state">
-              <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
-              <button>...</button>
-            </td>
-            <td class="states-table__state table-state">
-              <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
-              <button>...</button>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
-          <tr>
-            <td>1</td>
-            <td class="table-state__transitionCeil"><input type="text" value="q0 1 r"></td>
-            <td class="table-state__transitionCeil"><input type="text" value="q0 1 r"></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="states-table__buttons">
-        <button type="button">добавить букву</button>
+        <button class="startBlock__step">Следующий шаг</button>
+        <button class="startBlock__step">Предыдущий шаг</button>
+      </div>
+      <div class="startBlock__window">
+
       </div>
     </div>
   </div>
