@@ -369,3 +369,34 @@
 ._table-modalWindow_2 .table-modalWindow_2__option:not(:first-child) {
   border-top: 1px solid black;
 }
+
+.startBlock {
+  margin-top: 50px;
+}
+.startBlock button {
+  width: 20%;
+  padding: 10px 0;
+  border: 1px solid black;
+}
+.startBlock__menu {
+  /* border: 1px solid black; */
+  padding-left: 40px;
+}
+.startBlock__start {
+
+}
+.startBlock__onStart {
+
+}
+.startBlock__stop {
+}
+.startBlock__step {
+
+}
+.startBlock__window {
+
+}
+
+.grid__insertWord button:last-child {
+
+}

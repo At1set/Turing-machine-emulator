@@ -26,6 +26,7 @@
         <div class="grid__insertWord">
           <div>Введите слово: <input type="text"></div>
           <div><button type="button">Вставить</button></div>
+          <div class="grid-insertWord__clearButton"><button type="button">Очистить</button></div>
         </div>
         <div class="grid__abc">
           Задайте словарь: <b>{</b><input type="text" value="0, 1"><b>}</b>
@@ -60,7 +61,7 @@
             <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
             <tr>
               <td class="word-table__input"><input type="text" maxlength="1" value="0" data-lastvalue="0"></td>
-              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 _ S"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 1 R"></td>
             </tr>
             <tr>
               <td class="word-table__input"><input type="text" maxlength="1" value="1" data-lastvalue="1"></td>
@@ -84,8 +85,8 @@
       <div class="startBlock__menu">
         <button class="startBlock__start">Запуск</button>
         <div class="startBlock__onStart">
-          <button class="startBlock__start">Пауза</button>
-          <button class="startBlock__start">Остановить</button>
+          <button class="startBlock__stop">Пауза</button>
+          <button class="startBlock__fullStop">Остановить</button>
         </div>
         <button class="startBlock__step">Следующий шаг</button>
         <button class="startBlock__step">Предыдущий шаг</button>

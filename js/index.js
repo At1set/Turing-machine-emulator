@@ -1,5 +1,6 @@
 import Roulette from "./Roulette.js";
 import Parser from "./Parser.js"
+import Machine from "./Machine.js"
 
 window.onload = () => {
   const grid__roulette = document.querySelector(".grid__roulette")
@@ -94,6 +95,7 @@ window.onload = () => {
   })
 
   const insertButton = document.querySelector(".grid__insertWord button")
+  const clearButton = document.querySelector(".grid-insertWord__clearButton button")
   const wordInput = document.querySelector(".grid__insertWord input")
   let wordInput__lastValue = ""
   wordInput.addEventListener("input", (e) => {
@@ -125,6 +127,10 @@ window.onload = () => {
       roulette.updateWord(insertedWord[charIndex], roulette_lastFocus+(+charIndex), false, true)
     }
   })
+
+  clearButton.addEventListener("click", (e) => {
+    roulette.clearGrid()
+  })
   // =============== Соварь ===============
   const dictionary = document.querySelector(".grid__abc input")
   const button__setDictionary = document.querySelector(".grid__abc button")
@@ -132,6 +138,7 @@ window.onload = () => {
   let dictionary_lastValue = document.querySelector(".grid__abc input").value
   dictionary.addEventListener("input", (e) => {
     dictionary_input(e)
+    
   })
   
   function dictionary_input(e, isFromTable=false, isRemove=false, getBlockedSymbols=false) {
@@ -391,12 +398,96 @@ window.onload = () => {
       if(!dictionary_input(e, e.target.value)) return e.target.value = e.target.value.substr(0, e.target.value.length - 1)
       e.target.dataset.lastvalue = e.target.value
     }
+    if (e.target.closest(".table-state__content")) {
+      let tableStateInputs = Array.from(document.querySelectorAll(".table-state input"))
+      let inputState_index = tableStateInputs.indexOf(e.target)
+      if (inputState_index == -1) return console.log("Не найдено такое состояние!");
+      roulette.states[inputState_index] = e.target.value
+    }
   })
   // ========== Ввод в таблице ============
-
-
   let startButton = document.querySelector(".startBlock button")
+  let stopButton = document.querySelector(".startBlock__stop")
+  let fullStopButton = document.querySelector(".startBlock__fullStop")
+  let machine = undefined
   startButton.addEventListener("click", (e) => {
-    console.log(Parser.parseReactionsTable());
+    if (machine === undefined) machine = new Machine(roulette)
+    machine.stop = false
+    main(machine.step)
   })
+  stopButton.addEventListener("click", (e) => {
+    machine.stop = true
+    startButton.textContent = "Продолжить"
+  })
+  fullStopButton.addEventListener("click", (e) => {
+    if (machine === undefined) return
+    machine.stop = true
+    let backup_word = machine.backup_word
+    let backup_offset = machine.backup_offset
+    let backup_startPos = machine.backup_startPos
+    roulette.restoreRoulette(backup_word, backup_offset, backup_startPos)
+    return machine = undefined
+  })
+
+  function main(command_step) {
+    if (command_step === undefined) {
+      if (machine.isWorking) return
+      machine.commands = getNextMachineProgramm(machine)
+      machine.programm()
+    } else {
+      startButton.textContent = "Запуск"
+      machine.programm(command_step)
+    }
+  }
+
+  function getNextMachineProgramm(machine) {
+    let states = roulette.states
+    let dictionary = updateRouletteDict()
+    let reactions = Parser.parseReactionsTable()
+
+    let currentState = states[0]
+
+    function getNextState(state, symbol) {
+      let symbol__index = dictionary.indexOf(symbol)
+      let state__index = states.indexOf(state)
+      if (symbol__index == -1) {
+        console.log(`Нет такого символа в алфавите: ${symbol}!`)
+        return false
+      }
+      if (state__index == -1) {
+        console.log(`Нет такого состояния в алфавите: ${state}`)
+        return false
+      }
+      return reactions[symbol__index][state__index]?.split(" ")
+    }
+
+    let commands = []
+    function walkThrough(currentState, maxIter = 1000) {
+      if (maxIter <= 0) return commands
+      let current_letter = machine.readCurrentSymbol()
+      let nextStep = getNextState(currentState, current_letter)
+      if (!nextStep) return commands
+      let [newState, newLetter, command] = nextStep
+      
+      machine.writeLetter(newLetter)
+      commands.push([machine.writeLetter.bind(machine, newLetter), 1])
+      if (command == "r" || command == "R") {
+        machine.moveRight()
+        commands.push([machine.moveRight.bind(machine), 1])
+      } else if (command == "l" || command == "L") {
+        machine.moveLeft()
+        commands.push([machine.moveLeft.bind(machine), 1])
+      }
+      walkThrough(newState, maxIter - 1)
+    }
+
+    let backup_word = Array.from(roulette.word)
+    let backup_offset = roulette.offset
+    let backup_startPos = roulette.startPos
+
+    walkThrough(currentState)
+
+    roulette.restoreRoulette(backup_word, backup_offset, backup_startPos)
+    return commands
+  }
 }

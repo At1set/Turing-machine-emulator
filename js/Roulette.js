@@ -39,16 +39,16 @@ export default class Roulette {
     }
   }
 
-  updateWord(letter, index, isBackSpace=false, isInsert=false) {
+  updateWord(letter, index, isBackSpace = false, isInsert = false) {
     if (this.word.length == 0 && !letter && !isBackSpace) return
     if (letter || isBackSpace) {
       let letterPos = index + this.offset
       if (letterPos >= 0) {
-        if (isBackSpace) {this.word.splice(index, 1)}
-        else if (isInsert) this.word.splice(index, 0, letter)
+        if (isBackSpace) {
+          this.word[letterPos] = ""
+        } else if (isInsert) this.word.splice(index, 0, letter)
         else this.word[index + this.offset] = letter
-      }
-      else {
+      } else {
         letterPos = this.leftLetterPos - letterPos
         this.word = [...Array.from({ length: letterPos }), ...this.word]
         this.word[0] = letter
@@ -57,10 +57,32 @@ export default class Roulette {
       }
       if (this.leftLetterPos > letterPos) this.leftLetterPos = letterPos
     }
+
     const elements = Array.from(this.grid__roulette.children)
     elements.forEach((e, index) => {
       let current_letter = this.word[index + this.offset]
       e.querySelector("input").value = current_letter ?? ""
     })
+  }
+
+  getActiveCeilSymbol() {
+    return this.word[this.startPos - 1]
+  }
+
+  clearGrid() {
+    Array.from(this.grid__roulette.children).forEach((e) => {
+      e.querySelector("input").value = ""
+    })
+    return (this.word = [])
+  }
+
+  restoreRoulette(backup_word, backup_offset, backup_startPos) {
+    this.clearGrid()
+    this.word = backup_word
+    this.offset = backup_offset
+    this.startPos = backup_startPos
+
+    this.updateActiveCeil()
+    this.updateWord()
   }
 }
