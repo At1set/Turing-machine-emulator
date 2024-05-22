@@ -3,15 +3,17 @@ import Parser from "./Parser.js"
 import Machine from "./Machine.js"
 
 window.onload = () => {
-  const grid__roulette = document.querySelector(".grid__roulette")
+  let grid__roulette = document.querySelector(".grid__roulette")
   const grid__arrowLeft = document.querySelector(".grid__arrow_left")
   const grid__arrowRight = document.querySelector(".grid__arrow_right")
   let roulette = undefined
+  let isFollowСursor = false
 
   function resize_roulette(e, isInitial = false) {
     const width = document.body.clientWidth
     let count_of_ceils = Math.floor((width - 60) / 60)
-    if (count_of_ceils > 30) count_of_ceils = 30
+    if (count_of_ceils % 2 == 0) count_of_ceils += 1
+    if (count_of_ceils > 10) count_of_ceils = 11
     if (width < 767) count_of_ceils = 7
     if (width < 465) count_of_ceils = 5
     if (width < 325) count_of_ceils = 3
@@ -24,13 +26,28 @@ window.onload = () => {
         </div>
       `
     }
-    if (isInitial) roulette = new Roulette(grid__roulette)
+    subscribeRouletteInputs()
+    let activeCeil = 0
+    if (!isInitial) activeCeil = roulette.getActiveCeil()
+    if (isFollowСursor) activeCeil = parseInt(count_of_ceils / 2)
+    if (isInitial) {
+      roulette = new Roulette(grid__roulette, activeCeil)
+      grid__roulette.children[activeCeil].classList.add("_focus", "_current")
+    }
   }
   resize_roulette(null, true)
 
   window.addEventListener("resize", (e) => {
     resize_roulette()
     roulette.updateActiveCeil()
+    grid__roulette = document.querySelector(".grid__roulette")
+  })
+
+  document.querySelector(".input_isCenteredCoursour").addEventListener("change", (e) => {
+    isFollowСursor = e.target.checked
+    resize_roulette(undefined, true)
+    roulette.updateActiveCeil()
+    grid__roulette = document.querySelector(".grid__roulette")
   })
 
   grid__roulette.addEventListener("dblclick", (e) => {
@@ -77,14 +94,13 @@ window.onload = () => {
     }, delay)
   }
 
-  grid__roulette.querySelectorAll("input").forEach((e, index) => {
+  let roulette_lastFocus = undefined
+  function subscribeRouletteInputs() {
+    grid__roulette.querySelectorAll("input").forEach((e, index) => {
     e.addEventListener("input", (e) => {
       if (e.target.value == "") return roulette.updateWord(e.target.value, index, true)
       roulette.updateWord(e.target.value, index)
     })
-  })
-  let roulette_lastFocus = undefined
-  grid__roulette.querySelectorAll("input").forEach((e, index) => {
     e.addEventListener("focusin", (e) => {
       grid__roulette.querySelectorAll(".grid__item").forEach((e) => {
         e.classList.remove("_focus")
@@ -92,7 +108,8 @@ window.onload = () => {
       e.target.closest(".grid__item").classList.add("_focus")
       roulette_lastFocus = index
     })
-  })
+    })
+  }
 
   const insertButton = document.querySelector(".grid__insertWord button")
   const clearButton = document.querySelector(".grid-insertWord__clearButton button")
@@ -409,36 +426,149 @@ window.onload = () => {
   let startButton = document.querySelector(".startBlock button")
   let stopButton = document.querySelector(".startBlock__stop")
   let fullStopButton = document.querySelector(".startBlock__fullStop")
+  let nextStepButton = document.querySelector(".startBlock__nextStep")
+  let previousStepButton = document.querySelector(".startBlock__previousStep")
+
+  const option_coursorSpeed = document.querySelector(".options__option input")
+  const option_coursorSpeedtext = document.querySelector(".options__option p")
+  option_coursorSpeed.addEventListener("input", (e) => {
+    let value = e.target.value
+    option_coursorSpeedtext.textContent = value + "ms"
+    cursourSpeed = value
+    if (machine !== undefined) machine.delay = cursourSpeed
+  })
+  
   let machine = undefined
+  let cursourSpeed = 500;
+  let state = 0
+
+  function resetMachine() {
+    machine = undefined
+    state = 0
+  }
+
   startButton.addEventListener("click", (e) => {
-    if (machine === undefined) machine = new Machine(roulette)
-    machine.stop = false
-    main(machine.step)
+    if (Parser.checkIsAllStatesNamed()) programm_start(e)
   })
   stopButton.addEventListener("click", (e) => {
-    machine.stop = true
-    startButton.textContent = "Продолжить"
+    programm_pause(e)
   })
   fullStopButton.addEventListener("click", (e) => {
-    if (machine === undefined) return
-    machine.stop = true
-    let backup_word = machine.backup_word
-    let backup_offset = machine.backup_offset
-    let backup_startPos = machine.backup_startPos
-    roulette.restoreRoulette(backup_word, backup_offset, backup_startPos)
-    return machine = undefined
+    programm_fullstop(e)
+  })
+  nextStepButton.addEventListener("click", (e) => {
+    programm__next(e)
+  })
+  previousStepButton.addEventListener("click", (e) => {
+    programm__previous(e)
   })
 
-  function main(command_step) {
-    if (command_step === undefined) {
-      if (machine.isWorking) return
+  function change_state(newState) {
+    if (![0, "w", "p", "F"].includes(newState)) return
+    state = newState
+    if (state == 0) {
+      startButton.disabled = false
+      stopButton.disabled = true
+      fullStopButton.disabled = true
+      nextStepButton.disabled = false
+      previousStepButton.disabled = true
+    } else if (state === "w") {
+      startButton.disabled = true
+      stopButton.disabled = false
+      fullStopButton.disabled = false
+      nextStepButton.disabled = true
+      previousStepButton.disabled = true
+    } else if (state == "p") {
+      startButton.disabled = false
+      // startButton.textContent = "Продолжить"
+      stopButton.disabled = true
+      fullStopButton.disabled = false
+      nextStepButton.disabled = false
+      previousStepButton.disabled = false
+    } else if (state == "F") {
+      startButton.disabled = true
+      stopButton.disabled = true
+      fullStopButton.disabled = false
+      nextStepButton.disabled = true
+      previousStepButton.disabled = false
+    }
+    return state
+  }
+
+  function programm_start(e) {
+    if (state == "w" || state == "F") return
+    if (state == 0) {
+      change_state("w")
+      machine = createNewMachine()
       machine.commands = getNextMachineProgramm(machine)
-      machine.programm()
-    } else {
-      startButton.textContent = "Запуск"
-      machine.programm(command_step)
+      return machine.programm()
+    } else if (state == "p") {
+      programm_continue(e)
+    }
+    return
+  }
+
+  function programm_continue(e) {
+    change_state("w")
+    machine.stop = false
+    machine.programm(machine.step)
+    startButton.disabled = true
+    // startButton.textContent = "Запуск"
+    return
+  }
+
+  function programm_pause(e) {
+    if (state == 0 || state == "p" || state == "F") return
+    if (state == "w") {
+      change_state("p")
+      machine.stop = true
+      // startButton.textContent = "Продолжить"
+    }
+    return
+  }
+
+  function programm_fullstop(e) {
+    if (state == 0) return
+    else if (state == "w" || state == "p" || state == "F") {
+      change_state(0)
+      machine.stop = true
+      let backup_word = machine.backup_word
+      let backup_offset = machine.backup_offset
+      let backup_startPos = machine.backup_startPos
+      roulette.restoreRoulette(backup_word, backup_offset, backup_startPos)
+
+      // startButton.textContent = "Запуск"
+      return (machine = undefined)
     }
   }
+
+  function programm__next(e) {
+    if (state == "w" || state == "F") return
+    if (state == 0) {
+      change_state("p")
+      machine = createNewMachine()
+      machine.commands = getNextMachineProgramm(machine)
+      machine.doNextStep()
+    } else if (state == "p") {
+      machine.doNextStep()
+    }
+  }
+
+  function programm__previous(e) {
+    if (state == "w" || state == 0) return
+    else if (state == "p" || state == "F") {
+      change_state("p")
+      machine.doPreviousStep()
+      if (machine.step == 0) change_state(0)
+    }
+  }
+
+  function createNewMachine() {
+    const newMachine = new Machine(roulette, isFollowСursor, [change_state.bind(this, "F")])
+    newMachine.delay = cursourSpeed
+    return newMachine
+  }
+
 
   function getNextMachineProgramm(machine) {
     let states = roulette.states
@@ -448,6 +578,7 @@ window.onload = () => {
     let currentState = states[0]
 
     function getNextState(state, symbol) {
+      if (symbol == "") symbol = "0"
       let symbol__index = dictionary.indexOf(symbol)
       let state__index = states.indexOf(state)
       if (symbol__index == -1) {
@@ -455,7 +586,7 @@ window.onload = () => {
         return false
       }
       if (state__index == -1) {
-        console.log(`Нет такого состояния в алфавите: ${state}`)
+        console.log(`Нет такого состояния: ${state}`)
         return false
       }
       return reactions[symbol__index][state__index]?.split(" ")
@@ -463,20 +594,21 @@ window.onload = () => {
 
     let commands = []
     function walkThrough(currentState, maxIter = 1000) {
-      if (maxIter <= 0) return commands
+      if (maxIter <= 0) return
       let current_letter = machine.readCurrentSymbol()
       let nextStep = getNextState(currentState, current_letter)
-      if (!nextStep) return commands
+      if (!nextStep) return
       let [newState, newLetter, command] = nextStep
       
-      machine.writeLetter(newLetter)
-      commands.push([machine.writeLetter.bind(machine, newLetter), 1])
+      let repeated = 1
+      machine.writeLetter(repeated, newLetter).Undo()
+      commands.push([machine.writeLetter.call(machine, repeated, newLetter), repeated])
       if (command == "r" || command == "R") {
-        machine.moveRight()
-        commands.push([machine.moveRight.bind(machine), 1])
+        machine.moveRight().Undo()
+        commands.push([machine.moveRight.call(machine, repeated), repeated])
       } else if (command == "l" || command == "L") {
-        machine.moveLeft()
-        commands.push([machine.moveLeft.bind(machine), 1])
+        machine.moveLeft().Undo()
+        commands.push([machine.moveLeft.call(machine, repeated), repeated])
       }
       walkThrough(newState, maxIter - 1)
     }

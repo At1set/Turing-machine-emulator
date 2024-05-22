@@ -1,7 +1,22 @@
+body {
+  background-image: radial-gradient(rgba(158, 126, 239, 0.722) 20% 40%, rgba(202, 221, 239, 0.817) 80% 30%);
+  color: rgb(79, 41, 52);
+}
+
+input {
+  background-color: rgba(4, 234, 255, 0.29);
+}
+
+button {
+  background-color: #ffffffb6;
+}
+
 .wrapper {
   width: 100%;
   height: 100%;
   overflow: auto;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 .title {
@@ -19,7 +34,7 @@
   margin: 0 auto;
   max-width: 90%;
   margin-top: 20px;
-  height: 50px;
+  height: 60px;
   border: 1px solid black;
 
   display: flex;
@@ -27,6 +42,10 @@
 
 .grid__roulette .grid__item {
   position: relative;
+}
+
+.grid__roulette .grid__item input{
+  font-size: 24px;
 }
 
 .grid__roulette .grid__item._focus::before {
@@ -367,21 +386,44 @@
   width: 100%;
 }
 ._table-modalWindow_2 .table-modalWindow_2__option:not(:first-child) {
-  border-top: 1px solid black;
+  border-top: 1px solid rgb(26, 205, 236);
 }
 
 .startBlock {
   margin-top: 50px;
 }
-.startBlock button {
-  width: 20%;
-  padding: 10px 0;
-  border: 1px solid black;
+
+@media (min-width: 900px) {
+  .startBlock {
+    margin-top: 50px;
+    margin: 0 auto;
+    max-width: 80%;
+  }
 }
+
 .startBlock__menu {
-  /* border: 1px solid black; */
-  padding-left: 40px;
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
+
+.startBlock__menu button {
+  display: block;
+  height: 100%;
+  flex: 1 1 auto;
+  min-width: 60px;
+  padding: 10px 0;
+  border: 3px outset rgb(0, 156, 254);
+}
+
+.startBlock__menu button:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.startBlock__menu button {}
+
 .startBlock__start {
 
 }
@@ -399,4 +441,21 @@
 
 .grid__insertWord button:last-child {
 
+}
+
+.options {
+  margin-top: 40px;
+}
+
+.options__option {
+  font-size: 18px;
+  display: flex;
+}
+
+.options__option h3 {
+  padding-right: 10px;
+}
+
+.options__option input {
+  margin-right: 10px;
 }

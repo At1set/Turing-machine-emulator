@@ -22,6 +22,32 @@
           <button type="button">></button>
         </div>
       </div>
+
+      <div class="startBlock">
+        <div class="startBlock__menu">
+          <button class="startBlock__start">
+            <img src="./images/play.svg" alt="">
+            <!-- Запуск -->
+          </button>
+          <button class="startBlock__stop" disabled>
+            <img src="./images/pause.svg" alt="">
+            <!-- Пауза -->
+          </button>
+          <button class="startBlock__fullStop" disabled>
+            <img src="./images/stop.svg" alt="">
+            <!-- Остановить -->
+          </button>
+          <button class="startBlock__previousStep" disabled>
+            <img src="./images/backward.svg" alt="">
+            <!-- Предыдущий шаг -->
+          </button>
+          <button class="startBlock__nextStep">
+            <img src="./images/forward.svg" alt="">
+            <!-- Следующий шаг -->
+          </button>
+        </div>
+      </div>
+
       <div class="grid__options">
         <div class="grid__insertWord">
           <div>Введите слово: <input type="text"></div>
@@ -34,25 +60,53 @@
         </div>
       </div>
     </div>
+
     <div class="states-table">
       <div class="states-table__wrapper">
+        <div class="states-table__modalWindow _table-modalWindow table-modalWindow"
+          style="left: 1076.86px; top: 308.571px;">
+          <div class="table-modalWindow__option">Добавить состояние</div>
+          <div class="table-modalWindow__option">Удалить текущую ячейку</div>
+          <div class="table-modalWindow__option">Добавить состояние справа</div>
+          <div class="table-modalWindow__option">Добавить состояние слева</div>
+        </div>
         <table class="states-table__table">
-          <div class="states-table__modalWindow _table-modalWindow table-modalWindow">
-            <div class="table-modalWindow__option">Добавить состояние</div>
-            <div class="table-modalWindow__option">Удалить текущую ячейку</div>
-            <div class="table-modalWindow__option">Добавить состояние справа</div>
-            <div class="table-modalWindow__option">Добавить состояние слева</div>
-          </div>
+    
           <thead>
             <tr>
               <th></th>
-              <th colspan="1">Состояния</th>
+              <th colspan="6">Состояния</th>
             </tr>
             <tr>
               <th scope="col">Алфавит</th>
               <!-- Сюда добавляем состояния -->
               <td class="states-table__state table-state">
                 <div class="table-state__content"><input type="text" value="q0" maxlength="3"></div>
+                <button style="z-index: 2;">...</button>
+              </td>
+    
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q1" maxlength="3"></div>
+                <button style="z-index: 2;">...</button>
+              </td>
+    
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q2" maxlength="3"></div>
+                <button style="z-index: 2;">...</button>
+              </td>
+    
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q3" maxlength="3"></div>
+                <button style="z-index: 2;">...</button>
+              </td>
+    
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q4" maxlength="3"></div>
+                <button style="z-index: 2;">...</button>
+              </td>
+    
+              <td class="states-table__state table-state">
+                <div class="table-state__content"><input type="text" value="q5" maxlength="3"></div>
                 <button>...</button>
               </td>
             </tr>
@@ -61,11 +115,21 @@
             <!-- Сюда добавляем строки вида: буква, реакция всех состояний на нее -->
             <tr>
               <td class="word-table__input"><input type="text" maxlength="1" value="0" data-lastvalue="0"></td>
-              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 1 R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="T _ S"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q2 _ R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q3 1 R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q4 1 L"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q5 _ L"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 _ R"></td>
             </tr>
             <tr>
               <td class="word-table__input"><input type="text" maxlength="1" value="1" data-lastvalue="1"></td>
-              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q0 _ S"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q1 0 R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q1 _ R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q2 _ R"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="-"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q4 _ L"></td>
+              <td class="table-state__transitionCeil"><input type="text" maxlength="7" value="q5 _ L"></td>
             </tr>
             <tr>
               <td>
@@ -81,18 +145,15 @@
       </div>
     </div>
 
-    <div class="startBlock">
-      <div class="startBlock__menu">
-        <button class="startBlock__start">Запуск</button>
-        <div class="startBlock__onStart">
-          <button class="startBlock__stop">Пауза</button>
-          <button class="startBlock__fullStop">Остановить</button>
-        </div>
-        <button class="startBlock__step">Следующий шаг</button>
-        <button class="startBlock__step">Предыдущий шаг</button>
+    <div class="options">
+      <div class="options__option">
+        <h3>Скорость каретки</h3>
+        <input type="range" min="50" max="1500" value="500" step="50">
+        <p>500ms</p>
       </div>
-      <div class="startBlock__window">
-
+      <div class="options__option input_isCenteredCoursour">
+        <h3>Центрировать каретку</h3>
+        <input type="checkbox">
       </div>
     </div>
   </div>

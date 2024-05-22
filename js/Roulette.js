@@ -1,13 +1,12 @@
 export default class Roulette {
-  constructor(grid__roulette) {
+  constructor(grid__roulette, indexOfActiveCeil) {
     this.grid__roulette = grid__roulette
     this.word = []
     this.dictionary = []
-    this.states = ["q0"]
+    this.states = ["q0", "q1", "q2", "q3", "q4", "q5"]
     this.leftLetterPos = 0
     this.offset = 0
-    this.startPos = 1
-    grid__roulette.firstElementChild.classList.add("_current")
+    this.startPos = 1 + indexOfActiveCeil
   }
 
   move(left) {
@@ -40,8 +39,8 @@ export default class Roulette {
   }
 
   updateWord(letter, index, isBackSpace = false, isInsert = false) {
-    if (this.word.length == 0 && !letter && !isBackSpace) return
-    if (letter || isBackSpace) {
+    if (this.word.length == 0 && letter === undefined && !isBackSpace) return
+    if (letter !== undefined || isBackSpace) {
       let letterPos = index + this.offset
       if (letterPos >= 0) {
         if (isBackSpace) {
@@ -67,6 +66,10 @@ export default class Roulette {
 
   getActiveCeilSymbol() {
     return this.word[this.startPos - 1]
+  }
+
+  getActiveCeil() {
+    return this.startPos - this.offset - 1
   }
 
   clearGrid() {
