@@ -36,4 +36,13 @@ export default class Parser {
     }
     return isGood
   }
+
+  static parseConfigFile(value) {
+    const result = {
+      states: []
+    }
+    value.split("\n").forEach(string => {
+
+    })
+  }
 }

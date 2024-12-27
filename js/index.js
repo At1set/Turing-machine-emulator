@@ -1,6 +1,7 @@
 import Roulette from "./Roulette.js";
 import Parser from "./Parser.js"
 import Machine from "./Machine.js"
+import Table from "./Table.js";
 
 window.onload = () => {
   let grid__roulette = document.querySelector(".grid__roulette")
@@ -155,18 +156,16 @@ window.onload = () => {
   let dictionary_lastValue = document.querySelector(".grid__abc input").value
   dictionary.addEventListener("input", (e) => {
     dictionary_input(e)
-    
   })
   
   function dictionary_input(e, isFromTable=false, isRemove=false, getBlockedSymbols=false) {
+    // isFromTable при isRemove - буква словаря, иначе - bool
     let blockedSymbols = [",", ".", "<", ">", ";", "/", "|", "\\", ":", "'", "+", "-", " ", "`", "\""]
     if (getBlockedSymbols) return blockedSymbols
     if (isRemove) {
-      let dict = updateRouletteDict()
-      let index = dict.indexOf(isFromTable)
+      let index = roulette.dictionary.indexOf(isFromTable)
       if (index == -1) return
-      dict.splice(index, 1)
-      dictionary.value = dict.join(", ")
+      roulette.dictionary[index] = ""
       return updateRouletteDict()
     }
 
@@ -182,8 +181,22 @@ window.onload = () => {
     if (blockedSymbols.includes(letter)) return false
     let dictHasLetter = dictionary.value.includes(letter)
     if (letter && !dictHasLetter) {
-      if (dictionary.value.length > 0) dictionary.value += ", " + letter
-      else dictionary.value += letter
+      if (!isFromTable) {
+        if (dictionary.value.length > 0) dictionary.value += ", " + letter
+        else dictionary.value += letter
+      } else {
+        const rouletteDict = roulette.dictionary
+        const tableWordInputs = Table.getWordInputs()
+        while (rouletteDict.length < tableWordInputs.length) {
+          rouletteDict.push("")
+        }
+
+        // const indexInDict = tableWordInputs.indexOf(e.target)
+        // rouletteDict[indexInDict] = letter
+        // console.log(rouletteDict);
+        
+        // dictionary.value = rouletteDict.join(", ")
+      }
     }
 
     updateRouletteDict()
@@ -191,12 +204,17 @@ window.onload = () => {
     return !dictHasLetter
   }
 
-  function updateRouletteDict() {
-    let dict = dictionary.value.split(", ")
-    roulette.dictionary = dict
-    return dict
+  function updateInputDict() {
+    return dictionary.value = roulette.dictionary.filter(letter => letter).join(", ")
   }
-
+  function updateRouletteDict() {
+    const tableWordInputs = Table.getWordInputs()
+    while (roulette.dictionary.length < tableWordInputs.length) {
+      roulette.dictionary.push("")
+    }
+    
+  }
+  
   button__setDictionary.addEventListener("click", (e) => {
     updateRouletteDict()
     setTableDictionary(roulette.dictionary)
@@ -398,16 +416,8 @@ window.onload = () => {
   }
   // ========== МОДАЛЬНОЕ ОКНО №2 =========
   // ========== Ввод в таблице ============
-  function getWordInputs() {
-    let inputs = []
-    let wordCeils = document.querySelectorAll(".states-table tbody tr")
-    wordCeils = Array.from(wordCeils).slice(0, -1)
-    wordCeils.forEach(e => {
-      inputs.push(e.children[0].querySelector("input"))
-    });
-    return inputs
-  }
   document.querySelector(".states-table__table").addEventListener("input", (e) => {
+    // Ввод алфавита
     if (e.target.closest(".word-table__input")) {
       if (e.target.value == "") {
         return dictionary_input(e, e.target.dataset.lastvalue, true)
@@ -415,10 +425,11 @@ window.onload = () => {
       if(!dictionary_input(e, e.target.value)) return e.target.value = e.target.value.substr(0, e.target.value.length - 1)
       e.target.dataset.lastvalue = e.target.value
     }
+    // Ввод состояний
     if (e.target.closest(".table-state__content")) {
-      let tableStateInputs = Array.from(document.querySelectorAll(".table-state input"))
+      console.log(e.target);
+      let tableStateInputs = Table.getStateInputs()
       let inputState_index = tableStateInputs.indexOf(e.target)
-      if (inputState_index == -1) return console.log("Не найдено такое состояние!");
       roulette.states[inputState_index] = e.target.value
     }
   })
@@ -436,6 +447,20 @@ window.onload = () => {
     option_coursorSpeedtext.textContent = value + "ms"
     cursourSpeed = value
     if (machine !== undefined) machine.delay = cursourSpeed
+  })
+
+  const option_inputFile = document.getElementById("import-table")
+  option_inputFile.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        console.log(content);
+      };
+      reader.readAsText(file);
+      option_inputFile.value = null
+    }
   })
   
   let machine = undefined
