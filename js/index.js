@@ -167,7 +167,7 @@ window.onload = () => {
       let index = roulette.dictionary.indexOf(isFromTable)
       if (index == -1) return
       roulette.dictionary[index] = ""
-      return
+      return updateInputDict()
     }
 
     if (e.inputType === "deleteContentForward") {
