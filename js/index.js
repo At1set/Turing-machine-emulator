@@ -95,7 +95,7 @@ window.onload = () => {
     }, delay)
   }
 
-  let roulette_lastFocus = undefined
+  let roulette_lastFocus = 0
   function subscribeRouletteInputs() {
     grid__roulette.querySelectorAll("input").forEach((e, index) => {
     e.addEventListener("input", (e) => {
@@ -135,7 +135,8 @@ window.onload = () => {
   insertButton.addEventListener("click", (e) => {
     let insertedWord = wordInput.value
     if (insertedWord == "" || roulette_lastFocus==undefined) return
-    let dict = updateRouletteDict()
+    let dict = getInputDict()
+    
     for (let i = 0; i < insertedWord.length; i++) {
       const symbol = insertedWord[i]
       if (symbol == " ") continue
@@ -166,7 +167,7 @@ window.onload = () => {
       let index = roulette.dictionary.indexOf(isFromTable)
       if (index == -1) return
       roulette.dictionary[index] = ""
-      return updateRouletteDict()
+      return
     }
 
     if (e.inputType === "deleteContentForward") {
@@ -185,39 +186,35 @@ window.onload = () => {
         if (dictionary.value.length > 0) dictionary.value += ", " + letter
         else dictionary.value += letter
       } else {
-        const rouletteDict = roulette.dictionary
-        const tableWordInputs = Table.getWordInputs()
-        while (rouletteDict.length < tableWordInputs.length) {
-          rouletteDict.push("")
-        }
-
-        // const indexInDict = tableWordInputs.indexOf(e.target)
-        // rouletteDict[indexInDict] = letter
-        // console.log(rouletteDict);
-        
-        // dictionary.value = rouletteDict.join(", ")
+        const indexInDict = Table.getWordInputs().indexOf(e.target)
+        roulette.dictionary[indexInDict] = letter
+        updateInputDict()
       }
     }
 
-    updateRouletteDict()
     dictionary_lastValue = dictionary.value
     return !dictHasLetter
   }
 
+  // Обновляет строку инпута из словаря
   function updateInputDict() {
     return dictionary.value = roulette.dictionary.filter(letter => letter).join(", ")
   }
-  function updateRouletteDict() {
+
+  // Обновляет словарь из таблицы
+  function updateRouletteDict(isWithInputDict=true) {
     const tableWordInputs = Table.getWordInputs()
-    while (roulette.dictionary.length < tableWordInputs.length) {
-      roulette.dictionary.push("")
-    }
-    
+    roulette.dictionary = tableWordInputs.map((input) => input.value)
+    if (isWithInputDict) updateInputDict()
+  }
+  updateRouletteDict()
+
+  function getInputDict() {
+    return dictionary.value.split(", ")
   }
   
   button__setDictionary.addEventListener("click", (e) => {
-    updateRouletteDict()
-    setTableDictionary(roulette.dictionary)
+    setTableDictionary(getInputDict())
   })
 
   function setTableDictionary(dict) {
@@ -329,34 +326,32 @@ window.onload = () => {
   // =========== МОДАЛЬНОЕ ОКНО ===========
   // ===========     ТАБЛИЦА    ===========
   function changeTableState(left, index, isDelete = false) {
-    let tableState = document.querySelector(".states-table thead tr:last-child")
-    let tableStateTransitions = document.querySelectorAll(
-      ".states-table tbody tr"
-    )
-    tableStateTransitions = Array.from(tableStateTransitions).slice(0, -1)
-    let stateCeil = document.querySelector(
+    const tableState = document.querySelector(".states-table thead tr:last-child")
+    const tableStateTransitions = Table.getAllRows()
+
+    // Переменная ячейки, где заголовок "Состояния"
+    const stateCeil = document.querySelector(
       ".states-table thead tr th:last-child"
     )
 
     stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
-    let newCeilState = `
-      <td class="states-table__state table-state">
-        <div class="table-state__content"><input type="text" value="" maxlength="3"></div>
-        <button>...</button>
-      </td>
-    `
-    let newCeilStateTransitions = `
-      <td class="table-state__transitionCeil"><input type="text" maxlength="7"></td>
-    `
-    if (isDelete) {
-      if (tableState.children.length <= 2) return
+    const newCeilState = Table.newCeilSize
+    const newCeilStateTransitions = Table.newCeilStateTransitions
+
+    // Если колонок состояний > 2
+    if (isDelete && tableState.children.length > 2) {
       tableState.removeChild(tableState.children[index + 1])
       tableStateTransitions.forEach((e) => {
         e.removeChild(e.children[index + 1])
       })
-      roulette.states.splice(index, 1)
-      return
+    } else if (isDelete) {
+      const lastColumn = Table.getColumnAt(0)
+      if (lastColumn) {
+        lastColumn.forEach(input => input.value = "")
+      }
     }
+    if (isDelete) return roulette.states.splice(index, 1)
+    
     if (left == undefined) {
       tableState.insertAdjacentHTML("beforeend", newCeilState)
       roulette.states.length += 1
@@ -377,14 +372,14 @@ window.onload = () => {
 
   function changeWorldTable(isDelete=false) {
     let lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")
+    // Если рядов > 2 (1й не учитывается)
+    let removeingElement = lastTransitionsRow[lastTransitionsRow.length - 2]
     if (isDelete && lastTransitionsRow.length > 2) {
-      let removeingElement = lastTransitionsRow[lastTransitionsRow.length - 2]
-      let letter = removeingElement.children[0].querySelector("input").value
-      if (letter.length > 0) dictionary_input(undefined, letter, true)
-      return document
-        .querySelector(".states-table tbody")
-        .removeChild(removeingElement)
-    } else if (isDelete) return
+      document.querySelector(".states-table tbody").removeChild(removeingElement)
+    // Если остался последний ряд
+    } else if (isDelete) removeingElement.querySelectorAll("input").forEach(input => input.value = "")
+    if (isDelete) return updateRouletteDict()
+    
     lastTransitionsRow = lastTransitionsRow[lastTransitionsRow.length - 2]
     let isTableTransitionsClear = false
     if (!lastTransitionsRow) {
@@ -597,7 +592,7 @@ window.onload = () => {
 
   function getNextMachineProgramm(machine) {
     let states = roulette.states
-    let dictionary = updateRouletteDict()
+    let dictionary = getInputDict()
     let reactions = Parser.parseReactionsTable()
 
     let currentState = states[0]
