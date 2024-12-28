@@ -217,6 +217,7 @@ window.onload = () => {
     setTableDictionary(getInputDict())
   })
 
+  // Функция, из-за которой удаляется весь контент при нажатии на кнопку "Задать словарь"
   function setTableDictionary(dict) {
     let clearWorldTable = 
     `
