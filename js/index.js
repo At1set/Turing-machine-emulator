@@ -2,6 +2,7 @@ import Roulette from "./Roulette.js";
 import Parser from "./Parser.js"
 import Machine from "./Machine.js"
 import Table from "./Table.js";
+import FileImporter from "./importFile/FileImporter.js";
 
 window.onload = () => {
   let grid__roulette = document.querySelector(".grid__roulette")
@@ -44,12 +45,14 @@ window.onload = () => {
     grid__roulette = document.querySelector(".grid__roulette")
   })
 
-  document.querySelector(".input_isCenteredCoursour").addEventListener("change", (e) => {
-    isFollowСursor = e.target.checked
-    resize_roulette(undefined, true)
-    roulette.updateActiveCeil()
-    grid__roulette = document.querySelector(".grid__roulette")
-  })
+  document
+    .querySelector(".input_isCenteredCoursour")
+    .addEventListener("change", (e) => {
+      isFollowСursor = e.target.checked
+      resize_roulette(undefined, true)
+      roulette.updateActiveCeil()
+      grid__roulette = document.querySelector(".grid__roulette")
+    })
 
   grid__roulette.addEventListener("dblclick", (e) => {
     const element = e.target.closest(".grid__item")
@@ -98,22 +101,25 @@ window.onload = () => {
   let roulette_lastFocus = 0
   function subscribeRouletteInputs() {
     grid__roulette.querySelectorAll("input").forEach((e, index) => {
-    e.addEventListener("input", (e) => {
-      if (e.target.value == "") return roulette.updateWord(e.target.value, index, true)
-      roulette.updateWord(e.target.value, index)
-    })
-    e.addEventListener("focusin", (e) => {
-      grid__roulette.querySelectorAll(".grid__item").forEach((e) => {
-        e.classList.remove("_focus")
+      e.addEventListener("input", (e) => {
+        if (e.target.value == "")
+          return roulette.updateWord(e.target.value, index, true)
+        roulette.updateWord(e.target.value, index)
       })
-      e.target.closest(".grid__item").classList.add("_focus")
-      roulette_lastFocus = index
-    })
+      e.addEventListener("focusin", (e) => {
+        grid__roulette.querySelectorAll(".grid__item").forEach((e) => {
+          e.classList.remove("_focus")
+        })
+        e.target.closest(".grid__item").classList.add("_focus")
+        roulette_lastFocus = index
+      })
     })
   }
 
   const insertButton = document.querySelector(".grid__insertWord button")
-  const clearButton = document.querySelector(".grid-insertWord__clearButton button")
+  const clearButton = document.querySelector(
+    ".grid-insertWord__clearButton button"
+  )
   const wordInput = document.querySelector(".grid__insertWord input")
   let wordInput__lastValue = ""
   wordInput.addEventListener("input", (e) => {
@@ -128,22 +134,28 @@ window.onload = () => {
         break
       }
     }
-    if (isBlockedSymbol) return e.target.value = wordInput__lastValue
+    if (isBlockedSymbol) return (e.target.value = wordInput__lastValue)
     wordInput__lastValue = e.target.value
   })
 
   insertButton.addEventListener("click", (e) => {
     let insertedWord = wordInput.value
-    if (insertedWord == "" || roulette_lastFocus==undefined) return
+    if (insertedWord == "" || roulette_lastFocus == undefined) return
     let dict = getInputDict()
-    
+
     for (let i = 0; i < insertedWord.length; i++) {
       const symbol = insertedWord[i]
       if (symbol == " ") continue
-      if (!dict.includes(symbol)) return alert(`В словаре отсутсвует символ ${symbol}!`)
+      if (!dict.includes(symbol))
+        return alert(`В словаре отсутсвует символ ${symbol}!`)
     }
     for (let charIndex in insertedWord) {
-      roulette.updateWord(insertedWord[charIndex], roulette_lastFocus+(+charIndex), false, true)
+      roulette.updateWord(
+        insertedWord[charIndex],
+        roulette_lastFocus + +charIndex,
+        false,
+        true
+      )
     }
   })
 
@@ -158,10 +170,32 @@ window.onload = () => {
   dictionary.addEventListener("input", (e) => {
     dictionary_input(e)
   })
-  
-  function dictionary_input(e, isFromTable=false, isRemove=false, getBlockedSymbols=false) {
+
+  function dictionary_input(
+    e,
+    isFromTable = false,
+    isRemove = false,
+    getBlockedSymbols = false
+  ) {
     // isFromTable при isRemove - буква словаря, иначе - bool
-    let blockedSymbols = [",", ".", "<", ">", ";", "/", "|", "\\", ":", "'", "+", "-", " ", "`", "\""]
+    let blockedSymbols = [
+      ",",
+      ".",
+      "<",
+      ">",
+      ";",
+      "/",
+      "|",
+      "\\",
+      ":",
+      "'",
+      "+",
+      "-",
+      " ",
+      "`",
+      '"',
+      ""
+    ]
     if (getBlockedSymbols) return blockedSymbols
     if (isRemove) {
       let index = roulette.dictionary.indexOf(isFromTable)
@@ -174,11 +208,15 @@ window.onload = () => {
       return (e.target.value = dictionary_lastValue)
     }
     if (e.inputType === "deleteContentBackward") {
-      return e.target.value = e.target.value.substr(0, e.target.value.length - 2)
+      return (e.target.value = e.target.value.substr(
+        0,
+        e.target.value.length - 2
+      ))
     }
-    
-    let letter = e.target.value[e.target.value.length-1]
-    if (!isFromTable) dictionary.value = dictionary.value.substr(0, dictionary.value.length - 1)
+
+    let letter = e.target.value[e.target.value.length - 1]
+    if (!isFromTable)
+      dictionary.value = dictionary.value.substr(0, dictionary.value.length - 1)
     if (blockedSymbols.includes(letter)) return false
     let dictHasLetter = dictionary.value.includes(letter)
     if (letter && !dictHasLetter) {
@@ -198,11 +236,13 @@ window.onload = () => {
 
   // Обновляет строку инпута из словаря
   function updateInputDict() {
-    return dictionary.value = roulette.dictionary.filter(letter => letter).join(", ")
+    return (dictionary.value = roulette.dictionary
+      .filter((letter) => letter)
+      .join(", "))
   }
 
   // Обновляет словарь из таблицы
-  function updateRouletteDict(isWithInputDict=true) {
+  function updateRouletteDict(isWithInputDict = true) {
     const tableWordInputs = Table.getWordInputs()
     roulette.dictionary = tableWordInputs.map((input) => input.value)
     if (isWithInputDict) updateInputDict()
@@ -212,15 +252,14 @@ window.onload = () => {
   function getInputDict() {
     return dictionary.value.split(", ")
   }
-  
+
   button__setDictionary.addEventListener("click", (e) => {
     setTableDictionary(getInputDict())
   })
 
   // Функция, из-за которой удаляется весь контент при нажатии на кнопку "Задать словарь"
   function setTableDictionary(dict) {
-    let clearWorldTable = 
-    `
+    let clearWorldTable = `
       <tr>
         <td>
           <button class="word-table__button">...</button>
@@ -233,7 +272,6 @@ window.onload = () => {
     `
     let tableState = document.querySelector(".states-table tbody")
     tableState.innerHTML = clearWorldTable
-
 
     dict.forEach((symbol, index) => {
       changeWorldTable()
@@ -327,7 +365,9 @@ window.onload = () => {
   // =========== МОДАЛЬНОЕ ОКНО ===========
   // ===========     ТАБЛИЦА    ===========
   function changeTableState(left, index, isDelete = false) {
-    const tableState = document.querySelector(".states-table thead tr:last-child")
+    const tableState = document.querySelector(
+      ".states-table thead tr:last-child"
+    )
     const tableStateTransitions = Table.getAllRows()
 
     // Переменная ячейки, где заголовок "Состояния"
@@ -348,11 +388,11 @@ window.onload = () => {
     } else if (isDelete) {
       const lastColumn = Table.getColumnAt(0)
       if (lastColumn) {
-        lastColumn.forEach(input => input.value = "")
+        lastColumn.forEach((input) => (input.value = ""))
       }
     }
     if (isDelete) return roulette.states.splice(index, 1)
-    
+
     if (left == undefined) {
       tableState.insertAdjacentHTML("beforeend", newCeilState)
       roulette.states.length += 1
@@ -365,44 +405,56 @@ window.onload = () => {
       if (left) roulette.states.unshift(undefined)
       else roulette.states.length += 1
       tableStateTransitions.forEach((e) => {
-        e.children[index+1].insertAdjacentHTML(pos, newCeilStateTransitions)
+        e.children[index + 1].insertAdjacentHTML(pos, newCeilStateTransitions)
       })
     }
     lastModalWindowIndex = undefined
   }
 
-  function changeWorldTable(isDelete=false) {
+  function changeWorldTable(isDelete = false) {
     let lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")
     // Если рядов > 2 (1й не учитывается)
     let removeingElement = lastTransitionsRow[lastTransitionsRow.length - 2]
     if (isDelete && lastTransitionsRow.length > 2) {
-      document.querySelector(".states-table tbody").removeChild(removeingElement)
-    // Если остался последний ряд
-    } else if (isDelete) removeingElement.querySelectorAll("input").forEach(input => input.value = "")
+      document
+        .querySelector(".states-table tbody")
+        .removeChild(removeingElement)
+      // Если остался последний ряд
+    } else if (isDelete)
+      removeingElement
+        .querySelectorAll("input")
+        .forEach((input) => (input.value = ""))
     if (isDelete) return updateRouletteDict()
-    
+
     lastTransitionsRow = lastTransitionsRow[lastTransitionsRow.length - 2]
     let isTableTransitionsClear = false
     if (!lastTransitionsRow) {
       isTableTransitionsClear = true
-      lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")[0]
+      lastTransitionsRow = document.querySelectorAll(
+        ".states-table tbody tr"
+      )[0]
     }
     let newRow = document.createElement("tr")
     newRow.innerHTML += `<td class="word-table__input"><input type="text" maxlength="1" value=""></td>`
-    for (let i = 0; i <= roulette.states.length-1; i++) {
+    for (let i = 0; i <= roulette.states.length - 1; i++) {
       newRow.innerHTML += `<td class="table-state__transitionCeil"><input type="text" maxlength="7" value=""></td>`
     }
 
-    if (isTableTransitionsClear) return lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
+    if (isTableTransitionsClear)
+      return lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
     return lastTransitionsRow.insertAdjacentElement("afterend", newRow)
   }
   // ===========     ТАБЛИЦА    ===========
 
   // ========== МОДАЛЬНОЕ ОКНО №2 =========
-  const modalWindow_worldTable = document.querySelector(".word-table__modalWindow")
+  const modalWindow_worldTable = document.querySelector(
+    ".word-table__modalWindow"
+  )
   const tableStatesWrapper = document.querySelector(".states-table__wrapper")
   function openWorldModalWindow() {
-    const modalWindow_worldTable = document.querySelector(".word-table__modalWindow")
+    const modalWindow_worldTable = document.querySelector(
+      ".word-table__modalWindow"
+    )
     if (!modalWindow_worldTable.classList.contains("_active")) {
       modalWindow_worldTable.classList.add("_active")
       tableStatesWrapper.scrollTo(0, tableStatesWrapper.scrollHeight)
@@ -412,23 +464,29 @@ window.onload = () => {
   }
   // ========== МОДАЛЬНОЕ ОКНО №2 =========
   // ========== Ввод в таблице ============
-  document.querySelector(".states-table__table").addEventListener("input", (e) => {
-    // Ввод алфавита
-    if (e.target.closest(".word-table__input")) {
-      if (e.target.value == "") {
-        return dictionary_input(e, e.target.dataset.lastvalue, true)
+  document
+    .querySelector(".states-table__table")
+    .addEventListener("input", (e) => {
+      // Ввод алфавита
+      if (e.target.closest(".word-table__input")) {
+        if (e.target.value == "") {
+          return dictionary_input(e, e.target.dataset.lastvalue, true)
+        }
+        if (!dictionary_input(e, e.target.value))
+          return (e.target.value = e.target.value.substr(
+            0,
+            e.target.value.length - 1
+          ))
+        e.target.dataset.lastvalue = e.target.value
       }
-      if(!dictionary_input(e, e.target.value)) return e.target.value = e.target.value.substr(0, e.target.value.length - 1)
-      e.target.dataset.lastvalue = e.target.value
-    }
-    // Ввод состояний
-    if (e.target.closest(".table-state__content")) {
-      console.log(e.target);
-      let tableStateInputs = Table.getStateInputs()
-      let inputState_index = tableStateInputs.indexOf(e.target)
-      roulette.states[inputState_index] = e.target.value
-    }
-  })
+      // Ввод состояний
+      if (e.target.closest(".table-state__content")) {
+        console.log(e.target)
+        let tableStateInputs = Table.getStateInputs()
+        let inputState_index = tableStateInputs.indexOf(e.target)
+        roulette.states[inputState_index] = e.target.value
+      }
+    })
   // ========== Ввод в таблице ============
   let startButton = document.querySelector(".startBlock button")
   let stopButton = document.querySelector(".startBlock__stop")
@@ -445,22 +503,26 @@ window.onload = () => {
     if (machine !== undefined) machine.delay = cursourSpeed
   })
 
+  // ========== Импорт настроек ==========
+  const fileImporter = new FileImporter(roulette, dictionary_input(null, null, false, true))
   const option_inputFile = document.getElementById("import-table")
-  option_inputFile.addEventListener('change', function(event) {
-    const file = event.target.files[0];
+  option_inputFile.addEventListener("change", function (event) {
+    const file = event.target.files[0]
     if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const content = e.target.result;
-        console.log(content);
-      };
-      reader.readAsText(file);
-      option_inputFile.value = null
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        const content = e.target.result
+        fileImporter.applayConfig(file, content)
+      }
+      reader.readAsText(file)
     }
+    option_inputFile.value = null
   })
   
+  // ========== Импорт настроек ==========
+
   let machine = undefined
-  let cursourSpeed = 500;
+  let cursourSpeed = 500
   let state = 0
 
   function resetMachine() {
@@ -585,11 +647,12 @@ window.onload = () => {
   }
 
   function createNewMachine() {
-    const newMachine = new Machine(roulette, isFollowСursor, [change_state.bind(this, "F")])
+    const newMachine = new Machine(roulette, isFollowСursor, [
+      change_state.bind(this, "F"),
+    ])
     newMachine.delay = cursourSpeed
     return newMachine
   }
-
 
   function getNextMachineProgramm(machine) {
     let states = roulette.states
@@ -620,10 +683,13 @@ window.onload = () => {
       let nextStep = getNextState(currentState, current_letter)
       if (!nextStep) return
       let [newState, newLetter, command] = nextStep
-      
+
       let repeated = 1
       machine.writeLetter(repeated, newLetter).Undo()
-      commands.push([machine.writeLetter.call(machine, repeated, newLetter), repeated])
+      commands.push([
+        machine.writeLetter.call(machine, repeated, newLetter),
+        repeated,
+      ])
       if (command == "r" || command == "R") {
         machine.moveRight().Undo()
         commands.push([machine.moveRight.call(machine, repeated), repeated])
