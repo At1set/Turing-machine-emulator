@@ -246,19 +246,9 @@ window.onload = () => {
 
   // Функция, из-за которой удаляется весь контент при нажатии на кнопку "Задать словарь"
   function setTableDictionary(dict) {
-    let clearWorldTable = `
-      <tr>
-        <td>
-          <button class="word-table__button">...</button>
-          <div class="word-table__modalWindow _table-modalWindow _table-modalWindow_2">
-            <div class="table-modalWindow_2__option table-modalWindow__option">Добавить букву</div>
-            <div class="table-modalWindow_2__option table-modalWindow__option">Удалить</div>
-          </div>
-        </td>
-      </tr>
-    `
+    let clearWordTable = Table.clearWordTable
     let tableState = document.querySelector(".states-table tbody")
-    tableState.innerHTML = clearWorldTable
+    tableState.innerHTML = clearWordTable
 
     dict.forEach((symbol, index) => {
       table.changeWordTable()

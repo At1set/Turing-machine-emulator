@@ -15,8 +15,30 @@ export default class Table {
       <button>...</button>
     </td>
   `
+  
   static newCeilStateTransitions = `
     <td class="table-state__transitionCeil"><input type="text" maxlength="7"></td>
+  `
+  static clearWordTable = `
+    <tr>
+      <td>
+        <button class="word-table__button">...</button>
+        <div class="word-table__modalWindow _table-modalWindow _table-modalWindow_2">
+          <div class="table-modalWindow_2__option table-modalWindow__option">Добавить букву</div>
+          <div class="table-modalWindow_2__option table-modalWindow__option">Удалить</div>
+        </div>
+      </td>
+    </tr>
+  `
+
+  static clearStatesTable = `
+    <tr>
+      <th scope="col">Алфавит</th>
+      <td class="states-table__state table-state">
+        <div class="table-state__content"><input type="text" value="" maxlength="3"></div>
+        <button style="z-index: 2;">...</button>
+      </td>
+    </tr>
   `
 
   getStateInputs() {
@@ -69,7 +91,28 @@ export default class Table {
   getColumnAt(index) {
     const allColumns = this.getAllColumns()
     if (Math.abs(index) > allColumns.length) return null
-    return index >= 0 ? allColumns[index] : allColumns[allColumns.length + index]
+    return index >= 0
+      ? allColumns[index]
+      : allColumns[allColumns.length + index]
+  }
+
+  clearRows() {
+    let tableState = document.querySelector(".states-table tbody")
+    tableState.innerHTML = Table.clearWordTable
+  }
+
+  clearColumns() {
+    const allRows = this.getAllRows()
+    allRows.forEach((row) => {
+      Array.from(row.children).forEach((child, i) => {
+        if (i !== 0) row.removeChild(child)
+      })
+      row.innerHTML += Table.newCeilStateTransitions
+    })
+    const tableState = document.querySelector(
+      ".states-table thead tr:last-child"
+    )
+    tableState.innerHTML = Table.clearStatesTable
   }
 
   changeTableState(left, index, isDelete = false) {
@@ -147,7 +190,8 @@ export default class Table {
       newRow.innerHTML += `<td class="table-state__transitionCeil"><input type="text" maxlength="7" value=""></td>`
     }
 
-    if (isTableTransitionsClear) lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
+    if (isTableTransitionsClear)
+      lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
     else lastTransitionsRow.insertAdjacentElement("afterend", newRow)
   }
 }
