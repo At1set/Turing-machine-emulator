@@ -135,7 +135,7 @@ window.onload = () => {
     let blockedSymbols = dictionary_input(undefined, undefined, undefined, true)
     let isBlockedSymbol = false
     for (let charIndex in blockedSymbols) {
-      if (blockedSymbols[charIndex] == " ") continue
+      if (blockedSymbols[charIndex] == " " || blockedSymbols[charIndex] === '') continue
       if (e.target.value.includes(blockedSymbols[charIndex])) {
         isBlockedSymbol = true
         break
