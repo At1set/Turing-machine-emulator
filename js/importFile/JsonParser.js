@@ -1,12 +1,10 @@
 import ConfigObject from "./ConfigObject.js"
 
 export default class JsonParser {
-  constructor(blockedSymbols) {
-    this.blockedSymbols = blockedSymbols
-  }
+  constructor() {}
 
   parse(fileContent) {
-    const config = new ConfigObject(this.blockedSymbols)
+    const config = new ConfigObject()
     let result = {
       config: null,
       error: null,

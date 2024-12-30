@@ -1,6 +1,8 @@
+import { globalOptions } from "../index.js"
+
 export default class ConfigObject {
-  constructor (blockedSymbols) {
-    this.blockedSymbols = blockedSymbols
+  constructor () {
+    this.blockedSymbols = globalOptions.blockedSymbols
 
     this.Roulette = {
       word: [],

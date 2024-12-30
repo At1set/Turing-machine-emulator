@@ -4,11 +4,17 @@ import Machine from "./Machine.js"
 import Table from "./Table.js";
 import FileImporter from "./importFile/FileImporter.js";
 
+export const globalOptions = {
+  blockedSymbols: [",", ".", "<", ">", ";", "/", "|", "\\", ":", "'", "+", "-", " ", "`", '"', ""]
+}
+
 window.onload = () => {
+  // =============== Поле рулетки ===============
   let grid__roulette = document.querySelector(".grid__roulette")
   const grid__arrowLeft = document.querySelector(".grid__arrow_left")
   const grid__arrowRight = document.querySelector(".grid__arrow_right")
   let roulette = undefined
+  let table = new Table()
   let isFollowСursor = false
 
   function resize_roulette(e, isInitial = false) {
@@ -98,7 +104,6 @@ window.onload = () => {
     }, delay)
   }
 
-  let roulette_lastFocus = 0
   function subscribeRouletteInputs() {
     grid__roulette.querySelectorAll("input").forEach((e, index) => {
       e.addEventListener("input", (e) => {
@@ -111,16 +116,18 @@ window.onload = () => {
           e.classList.remove("_focus")
         })
         e.target.closest(".grid__item").classList.add("_focus")
-        roulette_lastFocus = index
+        roulette.lastFocus = index
       })
     })
   }
+  // =============== Поле рулетки ===============
 
+  // =============== Вставка слова ===============
+  const wordInput = document.querySelector(".grid__insertWord input")
   const insertButton = document.querySelector(".grid__insertWord button")
   const clearButton = document.querySelector(
     ".grid-insertWord__clearButton button"
   )
-  const wordInput = document.querySelector(".grid__insertWord input")
   let wordInput__lastValue = ""
   wordInput.addEventListener("input", (e) => {
     if (e.inputType === "deleteContentForward") return
@@ -140,7 +147,7 @@ window.onload = () => {
 
   insertButton.addEventListener("click", (e) => {
     let insertedWord = wordInput.value
-    if (insertedWord == "" || roulette_lastFocus == undefined) return
+    if (insertedWord == "" || roulette.lastFocus == undefined) return
     let dict = getInputDict()
 
     for (let i = 0; i < insertedWord.length; i++) {
@@ -152,16 +159,16 @@ window.onload = () => {
     for (let charIndex in insertedWord) {
       roulette.updateWord(
         insertedWord[charIndex],
-        roulette_lastFocus + +charIndex,
+        roulette.lastFocus + +charIndex,
         false,
         true
       )
     }
   })
 
-  clearButton.addEventListener("click", (e) => {
-    roulette.clearGrid()
-  })
+  clearButton.addEventListener("click", (e) => roulette.clearGrid())
+  // =============== Вставка слова ===============
+
   // =============== Соварь ===============
   const dictionary = document.querySelector(".grid__abc input")
   const button__setDictionary = document.querySelector(".grid__abc button")
@@ -173,29 +180,11 @@ window.onload = () => {
 
   function dictionary_input(
     e,
-    isFromTable = false,
+    isFromTable = false, // при isRemove - буква словаря, иначе - bool
     isRemove = false,
     getBlockedSymbols = false
   ) {
-    // isFromTable при isRemove - буква словаря, иначе - bool
-    let blockedSymbols = [
-      ",",
-      ".",
-      "<",
-      ">",
-      ";",
-      "/",
-      "|",
-      "\\",
-      ":",
-      "'",
-      "+",
-      "-",
-      " ",
-      "`",
-      '"',
-      ""
-    ]
+    let blockedSymbols = globalOptions.blockedSymbols
     if (getBlockedSymbols) return blockedSymbols
     if (isRemove) {
       let index = roulette.dictionary.indexOf(isFromTable)
@@ -224,7 +213,7 @@ window.onload = () => {
         if (dictionary.value.length > 0) dictionary.value += ", " + letter
         else dictionary.value += letter
       } else {
-        const indexInDict = Table.getWordInputs().indexOf(e.target)
+        const indexInDict = table.getWordInputs().indexOf(e.target)
         roulette.dictionary[indexInDict] = letter
         updateInputDict()
       }
@@ -236,14 +225,12 @@ window.onload = () => {
 
   // Обновляет строку инпута из словаря
   function updateInputDict() {
-    return (dictionary.value = roulette.dictionary
-      .filter((letter) => letter)
-      .join(", "))
+    return dictionary.value = roulette.dictionary.filter((letter) => letter).join(", ")
   }
 
   // Обновляет словарь из таблицы
   function updateRouletteDict(isWithInputDict = true) {
-    const tableWordInputs = Table.getWordInputs()
+    const tableWordInputs = table.getWordInputs()
     roulette.dictionary = tableWordInputs.map((input) => input.value)
     if (isWithInputDict) updateInputDict()
   }
@@ -274,25 +261,26 @@ window.onload = () => {
     tableState.innerHTML = clearWorldTable
 
     dict.forEach((symbol, index) => {
-      changeWorldTable()
+      table.changeWordTable()
       tableState = document.querySelectorAll(".states-table tbody tr")
       let dict_input = tableState[index].querySelector("input")
       dict_input.dataset.lastvalue = symbol
       dict_input.value = symbol
     })
+    return updateRouletteDict(false)
   }
   // =============== Соварь ===============
+
   // =========== МОДАЛЬНОЕ ОКНО ===========
   const modalWindow = document.querySelector(".table-modalWindow")
   let buttons_CeilStates = document.querySelectorAll(".table-state button")
-  let lastModalWindowIndex = undefined
   function openModalWindow(index) {
     if (
-      lastModalWindowIndex == index &&
+      table.lastModalWindowIndex == index &&
       modalWindow.classList.contains("_active")
     ) {
       updateZIndexStateButtons()
-      lastModalWindowIndex = undefined
+      table.lastModalWindowIndex = undefined
       return modalWindow.classList.remove("_active")
     }
     const target_button = buttons_CeilStates.item(index)
@@ -303,7 +291,7 @@ window.onload = () => {
     modalWindow.classList.add("_active")
     modalWindow.style.left = `${left}px`
     modalWindow.style.top = `${top}px`
-    lastModalWindowIndex = index
+    table.lastModalWindowIndex = index
 
     updateZIndexStateButtons()
     target_button.style.zIndex = "10"
@@ -335,16 +323,16 @@ window.onload = () => {
       // Обработка команд модального окна
       let command = e.target.textContent
       if (command == "Добавить состояние") {
-        changeTableState(undefined, undefined)
+        table.changeTableState(undefined, undefined)
       }
       if (command == "Удалить текущую ячейку") {
-        changeTableState(undefined, lastModalWindowIndex, true)
+        table.changeTableState(undefined, table.lastModalWindowIndex, true)
       }
       if (command == "Добавить состояние справа") {
-        changeTableState(false, lastModalWindowIndex)
+        table.changeTableState(false, table.lastModalWindowIndex)
       }
       if (command == "Добавить состояние слева") {
-        changeTableState(true, lastModalWindowIndex)
+        table.changeTableState(true, table.lastModalWindowIndex)
       }
       updateZIndexStateButtons()
       return modalWindow.classList.remove("_active")
@@ -354,98 +342,15 @@ window.onload = () => {
       let command = e.target.textContent
 
       if (command == "Добавить букву") {
-        changeWorldTable()
+        table.changeWordTable()
       } else if (command == "Удалить") {
-        changeWorldTable(true)
+        table.changeWordTable(true)
+        updateRouletteDict()
       }
-
       return modalWindow_worldTable.classList.remove("_active")
     }
   })
   // =========== МОДАЛЬНОЕ ОКНО ===========
-  // ===========     ТАБЛИЦА    ===========
-  function changeTableState(left, index, isDelete = false) {
-    const tableState = document.querySelector(
-      ".states-table thead tr:last-child"
-    )
-    const tableStateTransitions = Table.getAllRows()
-
-    // Переменная ячейки, где заголовок "Состояния"
-    const stateCeil = document.querySelector(
-      ".states-table thead tr th:last-child"
-    )
-
-    stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
-    const newCeilState = Table.newCeilSize
-    const newCeilStateTransitions = Table.newCeilStateTransitions
-
-    // Если колонок состояний > 2
-    if (isDelete && tableState.children.length > 2) {
-      tableState.removeChild(tableState.children[index + 1])
-      tableStateTransitions.forEach((e) => {
-        e.removeChild(e.children[index + 1])
-      })
-    } else if (isDelete) {
-      const lastColumn = Table.getColumnAt(0)
-      if (lastColumn) {
-        lastColumn.forEach((input) => (input.value = ""))
-      }
-    }
-    if (isDelete) return roulette.states.splice(index, 1)
-
-    if (left == undefined) {
-      tableState.insertAdjacentHTML("beforeend", newCeilState)
-      roulette.states.length += 1
-      tableStateTransitions.forEach((e) => {
-        e.insertAdjacentHTML("beforeend", newCeilStateTransitions)
-      })
-    } else {
-      let pos = left ? "beforebegin" : "afterend"
-      tableState.children[index + 1].insertAdjacentHTML(pos, newCeilState)
-      if (left) roulette.states.unshift(undefined)
-      else roulette.states.length += 1
-      tableStateTransitions.forEach((e) => {
-        e.children[index + 1].insertAdjacentHTML(pos, newCeilStateTransitions)
-      })
-    }
-    lastModalWindowIndex = undefined
-  }
-
-  function changeWorldTable(isDelete = false) {
-    let lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")
-    // Если рядов > 2 (1й не учитывается)
-    let removeingElement = lastTransitionsRow[lastTransitionsRow.length - 2]
-    if (isDelete && lastTransitionsRow.length > 2) {
-      document
-        .querySelector(".states-table tbody")
-        .removeChild(removeingElement)
-      // Если остался последний ряд
-    } else if (isDelete)
-      removeingElement
-        .querySelectorAll("input")
-        .forEach((input) => (input.value = ""))
-    if (isDelete) return updateRouletteDict()
-
-    lastTransitionsRow = lastTransitionsRow[lastTransitionsRow.length - 2]
-    let isTableTransitionsClear = false
-    if (!lastTransitionsRow) {
-      isTableTransitionsClear = true
-      lastTransitionsRow = document.querySelectorAll(
-        ".states-table tbody tr"
-      )[0]
-    }
-    let newRow = document.createElement("tr")
-    newRow.innerHTML += `<td class="word-table__input"><input type="text" maxlength="1" value=""></td>`
-    for (let i = 0; i <= roulette.states.length - 1; i++) {
-      newRow.innerHTML += `<td class="table-state__transitionCeil"><input type="text" maxlength="7" value=""></td>`
-    }
-
-    if (isTableTransitionsClear)
-      return lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
-    return lastTransitionsRow.insertAdjacentElement("afterend", newRow)
-  }
-  // ===========     ТАБЛИЦА    ===========
-
   // ========== МОДАЛЬНОЕ ОКНО №2 =========
   const modalWindow_worldTable = document.querySelector(
     ".word-table__modalWindow"
@@ -482,7 +387,7 @@ window.onload = () => {
       // Ввод состояний
       if (e.target.closest(".table-state__content")) {
         console.log(e.target)
-        let tableStateInputs = Table.getStateInputs()
+        let tableStateInputs = table.getStateInputs()
         let inputState_index = tableStateInputs.indexOf(e.target)
         roulette.states[inputState_index] = e.target.value
       }
@@ -504,7 +409,10 @@ window.onload = () => {
   })
 
   // ========== Импорт настроек ==========
-  const fileImporter = new FileImporter(roulette, dictionary_input(null, null, false, true))
+  const fileImporter = new FileImporter(
+    roulette,
+    dictionary_input(null, null, false, true)
+  )
   const option_inputFile = document.getElementById("import-table")
   option_inputFile.addEventListener("change", function (event) {
     const file = event.target.files[0]
@@ -518,7 +426,7 @@ window.onload = () => {
     }
     option_inputFile.value = null
   })
-  
+
   // ========== Импорт настроек ==========
 
   let machine = undefined

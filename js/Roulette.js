@@ -1,12 +1,17 @@
 export default class Roulette {
+  static Instance = null
+
   constructor(grid__roulette, indexOfActiveCeil) {
+    if (Roulette.Instance) return Roulette.Instance
     this.grid__roulette = grid__roulette
+    this.lastFocus = 0
     this.word = []
     this.dictionary = []
     this.states = ["q0", "q1", "q2", "q3", "q4", "q5"]
     this.leftLetterPos = 0
     this.offset = 0
     this.startPos = 1 + indexOfActiveCeil
+    Roulette.Instance = this
   }
 
   move(left) {
