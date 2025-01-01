@@ -313,16 +313,16 @@ window.onload = () => {
       // Обработка команд модального окна
       let command = e.target.textContent
       if (command == "Добавить состояние") {
-        table.changeTableState(undefined, undefined)
+        table.addColumn()
       }
       if (command == "Удалить текущую ячейку") {
-        table.changeTableState(undefined, table.lastModalWindowIndex, true)
+        table.deleteColumnAt(table.lastModalWindowIndex)
       }
       if (command == "Добавить состояние справа") {
-        table.changeTableState(false, table.lastModalWindowIndex)
+        table.addColumn(table.lastModalWindowIndex, Table.insertColumnPos.right)
       }
       if (command == "Добавить состояние слева") {
-        table.changeTableState(true, table.lastModalWindowIndex)
+        table.addColumn(table.lastModalWindowIndex, Table.insertColumnPos.left)
       }
       updateZIndexStateButtons()
       return modalWindow.classList.remove("_active")

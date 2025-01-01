@@ -9,7 +9,7 @@ export default class Table {
     Table.Instance = this
   }
 
-  static newCeilSize = `
+  static newCeilState = `
     <td class="states-table__state table-state">
       <div class="table-state__content"><input type="text" value="" maxlength="3"></div>
       <button>...</button>
@@ -40,6 +40,11 @@ export default class Table {
       </td>
     </tr>
   `
+
+  static insertColumnPos = {
+    left: "beforebegin",
+    right: "afterend",
+  }
 
   getStateInputs() {
     return Array.from(document.querySelectorAll(".table-state input"))
@@ -115,52 +120,71 @@ export default class Table {
     tableState.innerHTML = Table.clearStatesTable
   }
 
-  changeTableState(left, index, isDelete = false) {
-    const tableState = document.querySelector(
-      ".states-table thead tr:last-child"
-    )
+  deleteColumnAt(index=-1) {
+    // tr - где находятся все td ячейки с состояниями
+    const tableState = document.querySelector(".states-table thead tr:last-child")
     const tableStateTransitions = this.getAllRows()
 
-    // Переменная ячейки, где заголовок "Состояния"
-    const stateCeil = document.querySelector(
-      ".states-table thead tr th:last-child"
-    )
+    // отнимаем от длины 1 и добавляем к index + 1, т.к. мы не учитываем первую колонку (колонка для словаря)
+    const columnsLength = tableState.children.length - 1
+  
+    if (index < 0) index += columnsLength
+    index += 1
+    if (index < 1 || index > columnsLength) throw new RangeError("The index out of column's range")
 
-    stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
-    const newCeilState = Table.newCeilSize
+    // Если колонок состояний > 1
+    if (columnsLength > 1) {
+      tableState.removeChild(tableState.children[index])
+      tableStateTransitions.forEach((e) => e.removeChild(e.children[index]))
+    } else {
+      const lastColumn = this.getColumnAt(0)
+      if (lastColumn) lastColumn.forEach((input) => (input.value = ""))
+    }
+    return Roulette.Instance.states.splice(index-1, 1)
+  }
+
+  addColumn(index, insertColumnPos) {
+    if (
+      !((insertColumnPos === undefined && index === undefined) ||
+      (insertColumnPos !== undefined && index !== undefined))
+    ) throw new TypeError("Переданы неправильные аргументы!")
+    
+    // Переменная ячейки, где заголовок "Состояния"
+    const stateCeil = document.querySelector(".states-table thead tr th:last-child")
+    // tr - где находятся все td ячейки с состояниями
+    const tableState = document.querySelector(".states-table thead tr:last-child")
+
+    const tableStateTransitions = this.getAllRows()
+
+    const newCeilState = Table.newCeilState
     const newCeilStateTransitions = Table.newCeilStateTransitions
 
-    // Если колонок состояний > 2
-    if (isDelete && tableState.children.length > 2) {
-      tableState.removeChild(tableState.children[index + 1])
-      tableStateTransitions.forEach((e) => {
-        e.removeChild(e.children[index + 1])
-      })
-    } else if (isDelete) {
-      const lastColumn = this.getColumnAt(0)
-      if (lastColumn) {
-        lastColumn.forEach((input) => (input.value = ""))
-      }
-    }
-    if (isDelete) return Roulette.Instance.states.splice(index, 1)
+    if (insertColumnPos !== undefined) {
+      // отнимаем от длины 1 и добавляем к index + 1, т.к. мы не учитываем первую колонку (колонка для словаря)
+      const columnsLength = tableState.children.length - 1
 
-    if (left === undefined) {
-      tableState.insertAdjacentHTML("beforeend", newCeilState)
-      Roulette.Instance.states.length += 1
+      if (index < 0) index += columnsLength
+      index += 1
+      if (index < 1 || index > columnsLength) throw new RangeError("The index out of column's range")
+      
+      tableState.children[index].insertAdjacentHTML(insertColumnPos, newCeilState)
       tableStateTransitions.forEach((e) => {
-        e.insertAdjacentHTML("beforeend", newCeilStateTransitions)
+        e.children[index].insertAdjacentHTML(insertColumnPos, newCeilStateTransitions)
       })
-    } else {
-      let pos = left ? "beforebegin" : "afterend"
-      tableState.children[index + 1].insertAdjacentHTML(pos, newCeilState)
-      if (left) Roulette.Instance.states.unshift(undefined)
+      if (insertColumnPos === Table.insertColumnPos.left) Roulette.Instance.states.unshift(undefined)
       else Roulette.Instance.states.length += 1
-      tableStateTransitions.forEach((e) => {
-        e.children[index + 1].insertAdjacentHTML(pos, newCeilStateTransitions)
-      })
+    } else {
+      tableState.insertAdjacentHTML("beforeend", newCeilState)
+      tableStateTransitions.forEach((e) => e.insertAdjacentHTML("beforeend", newCeilStateTransitions))
+      Roulette.Instance.states.length += 1
     }
+    stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
     this.lastModalWindowIndex = undefined
   }
+
+  deleteRowAt() {}
+
+  addRow() {}
 
   changeWordTable(isDelete = false) {
     let lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")

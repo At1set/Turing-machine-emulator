@@ -28,6 +28,7 @@ export default class ConfigObject {
       dictionaryError: (element)         => {throw new Error(`Неправильный элемент в массиве алфавита: ${element}. Длина буквы алфавита не может быть больше ${this.letterLength}!`)},
       statesError:     (element)         => {throw new Error(`Неправильный элемент в массиве состояний: ${element}. Длина состояния не моет быть больше ${this.stateLength}!`)},
       rowsError:       (element, reason) => {throw new Error(`Неправильный элемент в массиве строк таблицы: ${element}.${reason && " " + reason}`)},
+      transitionError:   (element, reason)=> {throw new Error(`Неправильный элемент в ячейке перехода. ${reason}}`)},
       undefinedWordLetter:   (letter)    => {throw new Error(`Неправилая буква в массиве word. Обнаружен неизвестный символ. Буква \"${letter}\" не указана в массиве dictionary!`)},
       notIntegerError:   (property)      => {throw new TypeError(`Свойство ${property} должно быть целым числом!`)},
     }
