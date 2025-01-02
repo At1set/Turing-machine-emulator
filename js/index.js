@@ -5,7 +5,7 @@ import Table from "./Table.js";
 import FileImporter from "./importFile/FileImporter.js";
 
 export const globalOptions = {
-  blockedSymbols: [",", ".", "<", ">", ";", "/", "|", "\\", ":", "'", "+", "-", " ", "`", '"', ""]
+  blockedSymbols: [",", ".", "<", ">", ";", "/", "|", "\\", ":", "'", "+", "-", " ", "`", '"', ""],
 }
 
 window.onload = () => {
@@ -254,7 +254,7 @@ window.onload = () => {
     tableState.innerHTML = clearWordTable
 
     dict.forEach((symbol, index) => {
-      table.changeWordTable()
+      table.addRow()
       tableState = document.querySelectorAll(".states-table tbody tr")
       let dict_input = tableState[index].querySelector("input")
       dict_input.dataset.lastvalue = symbol
@@ -319,13 +319,13 @@ window.onload = () => {
         table.addColumn()
       }
       if (command == "Удалить текущую ячейку") {
-        table.deleteColumnAt(table.lastModalWindowIndex)
+        table.deleteColumn(table.lastModalWindowIndex)
       }
       if (command == "Добавить состояние справа") {
-        table.addColumn(table.lastModalWindowIndex, Table.insertColumnPos.right)
+        table.addColumn(table.lastModalWindowIndex, Table.insertElementPos.after)
       }
       if (command == "Добавить состояние слева") {
-        table.addColumn(table.lastModalWindowIndex, Table.insertColumnPos.left)
+        table.addColumn(table.lastModalWindowIndex, Table.insertElementPos.before)
       }
       updateZIndexStateButtons()
       return modalWindow.classList.remove("_active")
@@ -335,9 +335,9 @@ window.onload = () => {
       let command = e.target.textContent
 
       if (command == "Добавить букву") {
-        table.changeWordTable()
+        table.addRow()
       } else if (command == "Удалить") {
-        table.deleteRowAt()
+        table.deleteRow()
       }
       return modalWindow_worldTable.classList.remove("_active")
     }
@@ -378,7 +378,6 @@ window.onload = () => {
       }
       // Ввод состояний
       if (e.target.closest(".table-state__content")) {
-        console.log(e.target)
         let tableStateInputs = table.getStateInputs()
         let inputState_index = tableStateInputs.indexOf(e.target)
         roulette.states[inputState_index] = e.target.value
@@ -404,9 +403,34 @@ window.onload = () => {
   document.getElementById("export-table").addEventListener("click", exportOptions)
 
   function exportOptions(e) {
+    const isRoulette = true
+
+    const config = {}
+
+    const table_config = {
+      dictionary: roulette.dictionary,
+      states: roulette.states,
+      rows: table.getAllRows().map(row => {
+        return Array.from(row.querySelectorAll("input"))
+        .slice(1)
+        .map(input => input.value)
+      })
+    }
+    const roulette_config = {}
+
+    if (isRoulette) {
+      if (roulette.word.length) roulette_config.word = roulette.word
+      if (roulette.leftLetterPos !== 0) roulette_config.leftLetterPos = roulette.leftLetterPos
+      if (roulette.offset !== 0) roulette_config.offset = roulette.offset
+      if (roulette.startPos !== 1) roulette_config.startPos = roulette.startPos
+    }
+
+    config.Table = table_config
+    if (Object.keys(roulette_config).length) config.Roulette = roulette_config
+
     let link = document.createElement("a")
     link.href = URL.createObjectURL(
-      new Blob([JSON.stringify({'1': 'Hello World!'}, null, 4)], {
+      new Blob([JSON.stringify(config, null, 4)], {
         type: "json",
       })
     )

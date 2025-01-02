@@ -42,9 +42,9 @@ export default class Table {
     </tr>
   `
 
-  static insertColumnPos = {
-    left: "beforebegin",
-    right: "afterend",
+  static insertElementPos = {
+    before: "beforebegin",
+    after: "afterend",
   }
 
   getStateInputs() {
@@ -62,10 +62,8 @@ export default class Table {
   }
 
   getAllRows() {
-    const allRows = Array.from(
-      document.querySelector(".states-table__table").querySelectorAll("tr")
-    )
-    return allRows.slice(2, -1)
+    const allRows = Array.from(document.querySelector(".states-table__table tbody").querySelectorAll("tr"))
+    return allRows.slice(0, -1)
   }
 
   getRowAt(index) {
@@ -127,7 +125,7 @@ export default class Table {
     tableState.innerHTML = Table.clearStatesTable
   }
 
-  deleteColumnAt(index=-1) {
+  deleteColumn(index=-1) {
     // tr - где находятся все td ячейки с состояниями
     const tableState = document.querySelector(
       ".states-table thead tr:last-child"
@@ -146,7 +144,7 @@ export default class Table {
       const lastColumn = this.getColumnAt(0)
       if (lastColumn) lastColumn.forEach((input) => (input.value = ""))
     }
-    return Roulette.Instance.states.splice(index - 1, 1)
+    return Roulette.Instance.states.splice(index-1, 1)
   }
 
   addColumn(index, insertColumnPos) {
@@ -168,6 +166,7 @@ export default class Table {
     )
 
     const tableStateTransitions = this.getAllRows()
+    if (tableStateTransitions.length === 0) return
 
     const newCeilState = Table.newCeilState
     const newCeilStateTransitions = Table.newCeilStateTransitions
@@ -189,21 +188,20 @@ export default class Table {
           newCeilStateTransitions
         )
       })
-      if (insertColumnPos === Table.insertColumnPos.left)
-        Roulette.Instance.states.unshift(undefined)
-      else Roulette.Instance.states.length += 1
+      if (index === 1 && insertColumnPos === Table.insertElementPos.before) Roulette.Instance.states.unshift(null)
+      else Roulette.Instance.states.splice(index, 0, null)
     } else {
       tableState.insertAdjacentHTML("beforeend", newCeilState)
       tableStateTransitions.forEach((e) =>
         e.insertAdjacentHTML("beforeend", newCeilStateTransitions)
       )
-      Roulette.Instance.states.length += 1
+      Roulette.Instance.states.push(null)
     }
     stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
     this.lastModalWindowIndex = undefined
   }
 
-  deleteRowAt(index=-1) {
+  deleteRow(index=-1) {
     const allRows = this.getAllRows()
     const rowsTable = document.querySelector(".states-table tbody")
 
@@ -218,7 +216,7 @@ export default class Table {
       // Если остался последний ряд
     } else {
       const lastRow = this.getRowAt(0)
-      return lastRow.querySelectorAll("input").forEach((input) => (input.value = ""))
+      lastRow.querySelectorAll("input").forEach((input) => (input.value = ""))
     }
 
     // Обновляет словарь из таблицы
@@ -248,25 +246,27 @@ export default class Table {
 
     const allRows = this.getAllRows()
     const rowsTable = document.querySelector(".states-table tbody")
-  }
 
-  changeWordTable() {
-    lastTransitionsRow = lastTransitionsRow[lastTransitionsRow.length - 2]
-    let isTableTransitionsClear = false
-    if (!lastTransitionsRow) {
-      isTableTransitionsClear = true
-      lastTransitionsRow = document.querySelectorAll(
-        ".states-table tbody tr"
-      )[0]
-    }
+    const columnsLength = this.getStateInputs().length
+    if (columnsLength === 0) return
+
     let newRow = document.createElement("tr")
     newRow.innerHTML += Table.newCeilWord
-    for (let i = 0; i <= Roulette.Instance.states.length - 1; i++) {
+    for (let i = 0; i < columnsLength; i++) {
       newRow.innerHTML += Table.newCeilStateTransitions
     }
 
-    if (isTableTransitionsClear) lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
-    else lastTransitionsRow.insertAdjacentElement("afterend", newRow)
+    if (insertRowPos !== undefined) {
+      try {
+        index = _validateIndex(index, allRows.length)
+        index -= 1
+      }
+      catch (error) {throw error}
+      rowsTable.children[index].insertAdjacentElement(insertRowPos, newRow)
+    } else {
+      const IndexOflastElement = rowsTable.children.length !== 0 ? rowsTable.children.length-1 : 0
+      rowsTable.children[IndexOflastElement].insertAdjacentElement("beforebegin", newRow)
+    }
   }
 }
 
