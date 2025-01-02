@@ -135,7 +135,8 @@ window.onload = () => {
     let blockedSymbols = dictionary_input(undefined, undefined, undefined, true)
     let isBlockedSymbol = false
     for (let charIndex in blockedSymbols) {
-      if (blockedSymbols[charIndex] == " " || blockedSymbols[charIndex] === '') continue
+      if (blockedSymbols[charIndex] == " " || blockedSymbols[charIndex] === "")
+        continue
       if (e.target.value.includes(blockedSymbols[charIndex])) {
         isBlockedSymbol = true
         break
@@ -225,7 +226,9 @@ window.onload = () => {
 
   // Обновляет строку инпута из словаря
   function updateInputDict() {
-    return dictionary.value = roulette.dictionary.filter((letter) => letter).join(", ")
+    return (dictionary.value = roulette.dictionary
+      .filter((letter) => letter)
+      .join(", "))
   }
 
   // Обновляет словарь из таблицы
@@ -334,8 +337,7 @@ window.onload = () => {
       if (command == "Добавить букву") {
         table.changeWordTable()
       } else if (command == "Удалить") {
-        table.changeWordTable(true)
-        updateRouletteDict()
+        table.deleteRowAt()
       }
       return modalWindow_worldTable.classList.remove("_active")
     }
@@ -398,25 +400,43 @@ window.onload = () => {
     if (machine !== undefined) machine.delay = cursourSpeed
   })
 
+  // ========== Экспорт настроек ==========
+  document.getElementById("export-table").addEventListener("click", exportOptions)
+
+  function exportOptions(e) {
+    let link = document.createElement("a")
+    link.href = URL.createObjectURL(
+      new Blob([JSON.stringify({'1': 'Hello World!'}, null, 4)], {
+        type: "json",
+      })
+    )
+    link.download = "options.turing"
+    link.click()
+  }
+  // ========== Экспорт настроек ==========
+
   // ========== Импорт настроек ==========
-  const fileImporter = new FileImporter(
-    roulette,
-    dictionary_input(null, null, false, true)
-  )
-  const option_inputFile = document.getElementById("import-table")
-  option_inputFile.addEventListener("change", function (event) {
+  document.getElementById("import-table").addEventListener("click", importOptions)
+
+  function importOptions(e) {
+    let input = document.createElement("input")
+    input.type = "file"
+    input.accept = ".turing,.json,.txt"
+    input.onchange = importFile
+    input.click()
+  }
+  
+  function importFile(event) {
     const file = event.target.files[0]
     if (file) {
       const reader = new FileReader()
       reader.onload = function (e) {
         const content = e.target.result
-        fileImporter.applayConfig(file, content)
+        FileImporter.applayConfig(file, content)
       }
       reader.readAsText(file)
     }
-    option_inputFile.value = null
-  })
-
+  }
   // ========== Импорт настроек ==========
 
   let machine = undefined

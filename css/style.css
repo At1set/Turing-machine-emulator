@@ -450,12 +450,28 @@ button {
 .options__option {
   font-size: 18px;
   display: flex;
+  align-items: center;
+}
+
+.options__option:not(:last-child) {
+  margin-bottom: 10px;
 }
 
 .options__option h3 {
   padding-right: 10px;
+  display: flex;
+  align-items: center;
+  flex: 0 1 185px;
 }
 
 .options__option input {
   margin-right: 10px;
+}
+
+.options__option button {
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 1 140px;
 }

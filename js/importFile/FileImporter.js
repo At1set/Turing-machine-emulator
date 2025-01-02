@@ -5,14 +5,11 @@ import JsonParser from "./JsonParser.js"
 import TxtParser from "./TxtParser.js"
 
 export default class FileImporter {
-  constructor(roulette) {
-    this.roulette = roulette
-    this.jsonParser = new JsonParser()
-  }
+  constructor() {}
 
-  applayConfig(file, fileContent) {
+  static applayConfig(file, fileContent) {
     let result = null
-    if (file.type === "application/json") result = this.jsonParser.parse(fileContent)
+    if (file.type === "application/json") result = JsonParser.parse(fileContent)
     else if (file.type === "text/plain") result = TxtParser.parse(fileContent)
     console.log(result);
     const { config, error } = result

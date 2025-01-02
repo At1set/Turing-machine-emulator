@@ -147,7 +147,7 @@
     <div class="options">
       <div class="options__option">
         <h3>Скорость каретки</h3>
-        <input type="range" min="50" max="1500" value="500" step="50">
+        <input type="range" min="10" max="1500" value="500" step="10">
         <p>500ms</p>
       </div>
       <div class="options__option input_isCenteredCoursour">
@@ -155,8 +155,12 @@
         <input type="checkbox">
       </div>
       <div class="options__option import-table">
-        <h3>Импорт таблицы</h3>
-        <input type="file" accept=".json, .txt" id="import-table">
+        <h3>Импорт</h3>
+        <button id="import-table">Загрузите файл</button>
+      </div>
+      <div class="options__option export-table">
+        <h3>Экспорт</h3>
+        <button id="export-table">Сохранить таблицу</button>
       </div>
     </div>
   </div>

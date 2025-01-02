@@ -68,7 +68,7 @@ export default class Machine {
 
   readCurrentSymbol() {
     let symbol = this.roulette.getActiveCeilSymbol()
-    if (symbol == undefined || symbol == "" || symbol == " ") return ""
+    if ([undefined, "", " "].includes(symbol)) return ""
     return symbol
   }
 }

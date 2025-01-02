@@ -3,7 +3,7 @@ import ConfigObject from "./ConfigObject.js"
 export default class JsonParser {
   constructor() {}
 
-  parse(fileContent) {
+  static parse(fileContent) {
     const config = new ConfigObject()
     let result = {
       config: null,

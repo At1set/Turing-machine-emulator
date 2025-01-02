@@ -15,10 +15,11 @@ export default class Table {
       <button>...</button>
     </td>
   `
-  
-  static newCeilStateTransitions = `
-    <td class="table-state__transitionCeil"><input type="text" maxlength="7"></td>
-  `
+
+  static newCeilStateTransitions = `<td class="table-state__transitionCeil"><input type="text" maxlength="7"></td>`
+
+  static newCeilWord = `<td class="word-table__input"><input type="text" maxlength="1" value=""></td>`
+
   static clearWordTable = `
     <tr>
       <td>
@@ -69,8 +70,12 @@ export default class Table {
 
   getRowAt(index) {
     const allRows = this.getAllRows()
-    if (Math.abs(index) > allRows.length) return null
-    return index >= 0 ? allRows[index] : allRows[allRows.length + index]
+    try {
+      index = _validateIndex(index, allRows.length)
+      index -= 1
+    }
+    catch (error) {return null}
+    return allRows[index]
   }
 
   getAllColumns() {
@@ -95,10 +100,12 @@ export default class Table {
 
   getColumnAt(index) {
     const allColumns = this.getAllColumns()
-    if (Math.abs(index) > allColumns.length) return null
-    return index >= 0
-      ? allColumns[index]
-      : allColumns[allColumns.length + index]
+    try {
+      index = _validateIndex(index, allColumns.length)
+      index -= 1
+    }
+    catch (error) {return null}
+    return allColumns[index]
   }
 
   clearRows() {
@@ -122,15 +129,14 @@ export default class Table {
 
   deleteColumnAt(index=-1) {
     // tr - где находятся все td ячейки с состояниями
-    const tableState = document.querySelector(".states-table thead tr:last-child")
+    const tableState = document.querySelector(
+      ".states-table thead tr:last-child"
+    )
     const tableStateTransitions = this.getAllRows()
-
-    // отнимаем от длины 1 и добавляем к index + 1, т.к. мы не учитываем первую колонку (колонка для словаря)
     const columnsLength = tableState.children.length - 1
-  
-    if (index < 0) index += columnsLength
-    index += 1
-    if (index < 1 || index > columnsLength) throw new RangeError("The index out of column's range")
+
+    try {index = _validateIndex(index, columnsLength)}
+    catch (error) {throw error}
 
     // Если колонок состояний > 1
     if (columnsLength > 1) {
@@ -140,19 +146,26 @@ export default class Table {
       const lastColumn = this.getColumnAt(0)
       if (lastColumn) lastColumn.forEach((input) => (input.value = ""))
     }
-    return Roulette.Instance.states.splice(index-1, 1)
+    return Roulette.Instance.states.splice(index - 1, 1)
   }
 
   addColumn(index, insertColumnPos) {
     if (
-      !((insertColumnPos === undefined && index === undefined) ||
-      (insertColumnPos !== undefined && index !== undefined))
-    ) throw new TypeError("Переданы неправильные аргументы!")
-    
+      !(
+        (insertColumnPos === undefined && index === undefined) ||
+        (insertColumnPos !== undefined && index !== undefined)
+      )
+    )
+      throw new TypeError("Переданы неправильные аргументы!")
+
     // Переменная ячейки, где заголовок "Состояния"
-    const stateCeil = document.querySelector(".states-table thead tr th:last-child")
+    const stateCeil = document.querySelector(
+      ".states-table thead tr th:last-child"
+    )
     // tr - где находятся все td ячейки с состояниями
-    const tableState = document.querySelector(".states-table thead tr:last-child")
+    const tableState = document.querySelector(
+      ".states-table thead tr:last-child"
+    )
 
     const tableStateTransitions = this.getAllRows()
 
@@ -163,43 +176,81 @@ export default class Table {
       // отнимаем от длины 1 и добавляем к index + 1, т.к. мы не учитываем первую колонку (колонка для словаря)
       const columnsLength = tableState.children.length - 1
 
-      if (index < 0) index += columnsLength
-      index += 1
-      if (index < 1 || index > columnsLength) throw new RangeError("The index out of column's range")
-      
-      tableState.children[index].insertAdjacentHTML(insertColumnPos, newCeilState)
+      try {index = _validateIndex(index, columnsLength)}
+      catch (error) {throw error}
+
+      tableState.children[index].insertAdjacentHTML(
+        insertColumnPos,
+        newCeilState
+      )
       tableStateTransitions.forEach((e) => {
-        e.children[index].insertAdjacentHTML(insertColumnPos, newCeilStateTransitions)
+        e.children[index].insertAdjacentHTML(
+          insertColumnPos,
+          newCeilStateTransitions
+        )
       })
-      if (insertColumnPos === Table.insertColumnPos.left) Roulette.Instance.states.unshift(undefined)
+      if (insertColumnPos === Table.insertColumnPos.left)
+        Roulette.Instance.states.unshift(undefined)
       else Roulette.Instance.states.length += 1
     } else {
       tableState.insertAdjacentHTML("beforeend", newCeilState)
-      tableStateTransitions.forEach((e) => e.insertAdjacentHTML("beforeend", newCeilStateTransitions))
+      tableStateTransitions.forEach((e) =>
+        e.insertAdjacentHTML("beforeend", newCeilStateTransitions)
+      )
       Roulette.Instance.states.length += 1
     }
     stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
     this.lastModalWindowIndex = undefined
   }
 
-  deleteRowAt() {}
+  deleteRowAt(index=-1) {
+    const allRows = this.getAllRows()
+    const rowsTable = document.querySelector(".states-table tbody")
 
-  addRow() {}
+    try {
+      index = _validateIndex(index, allRows.length)
+      index -= 1
+    }
+    catch (error) {throw error}    
 
-  changeWordTable(isDelete = false) {
-    let lastTransitionsRow = document.querySelectorAll(".states-table tbody tr")
-    // Если рядов > 2 (1й не учитывается)
-    let removeingElement = lastTransitionsRow[lastTransitionsRow.length - 2]
-    if (isDelete && lastTransitionsRow.length > 2) {
-      document
-        .querySelector(".states-table tbody")
-        .removeChild(removeingElement)
+    if (allRows.length > 1) {
+      rowsTable.removeChild(allRows[index])
       // Если остался последний ряд
-    } else if (isDelete)
-      return removeingElement
-        .querySelectorAll("input")
-        .forEach((input) => (input.value = ""))
+    } else {
+      const lastRow = this.getRowAt(0)
+      return lastRow.querySelectorAll("input").forEach((input) => (input.value = ""))
+    }
 
+    // Обновляет словарь из таблицы
+    function updateRouletteDict() {
+      const tableWordInputs = Table.Instance.getWordInputs()
+      Roulette.Instance.dictionary = tableWordInputs.map((input) => input.value)
+      return updateInputDict()
+    }
+
+    // Обновляет строку инпута из словаря
+    function updateInputDict() {
+      const dictionary = document.querySelector(".grid__abc input")
+      return dictionary.value = Roulette.Instance.dictionary.filter((letter) => letter).join(", ")
+    }
+
+    return updateRouletteDict()
+  }
+
+  addRow(index, insertRowPos) {
+    if (
+      !(
+        (insertRowPos === undefined && index === undefined) ||
+        (insertRowPos !== undefined && index !== undefined)
+      )
+    )
+      throw new TypeError("Переданы неправильные аргументы!")
+
+    const allRows = this.getAllRows()
+    const rowsTable = document.querySelector(".states-table tbody")
+  }
+
+  changeWordTable() {
     lastTransitionsRow = lastTransitionsRow[lastTransitionsRow.length - 2]
     let isTableTransitionsClear = false
     if (!lastTransitionsRow) {
@@ -209,13 +260,19 @@ export default class Table {
       )[0]
     }
     let newRow = document.createElement("tr")
-    newRow.innerHTML += `<td class="word-table__input"><input type="text" maxlength="1" value=""></td>`
+    newRow.innerHTML += Table.newCeilWord
     for (let i = 0; i <= Roulette.Instance.states.length - 1; i++) {
-      newRow.innerHTML += `<td class="table-state__transitionCeil"><input type="text" maxlength="7" value=""></td>`
+      newRow.innerHTML += Table.newCeilStateTransitions
     }
 
-    if (isTableTransitionsClear)
-      lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
+    if (isTableTransitionsClear) lastTransitionsRow.insertAdjacentElement("beforeBegin", newRow)
     else lastTransitionsRow.insertAdjacentElement("afterend", newRow)
   }
+}
+
+function _validateIndex(index, ceilsLength) {
+  if (index < 0) index += ceilsLength
+  index += 1
+  if (index < 1 || index > ceilsLength) throw new RangeError("The index out of column's range")
+  return index
 }
