@@ -40,10 +40,11 @@ export default class ConfigObject {
       error: null
     }
     try {
-      validateTablePropertys.call(this, table)
-      validateDictionary.call(this, table.dictionary)
-      validateStates.call(this, table.states)
-      validateRows.call(this, table.rows)
+      this.Table = table
+      // validateTablePropertys.call(this, table)
+      // validateDictionary.call(this, table.dictionary)
+      // validateStates.call(this, table.states)
+      // validateRows.call(this, table.rows)
     } catch (error) {
       result.error = error
       return result
@@ -80,12 +81,12 @@ function validateTablePropertys(table) {
   if (!table_propertys.includes("rows")) this.ConfigErrors.missedTableProperty("rows")
 }
 
-function validateDictionary(dictionary) {
+export function validateDictionary(dictionary) {
   if (!Array.isArray(dictionary)) this.ConfigErrors.notArrayError("dictionary")
   if (dictionary.length < 1) this.ConfigErrors.emptyArrayError("dictionary")
   for (let i = 0; i < dictionary.length; i++) {
     const element = dictionary[i];
-    if (this.blockedSymbols.includes(element)) throw new Error(`Нельзя использовать в массиве dictionary в качестве буквы запрещенный символ \"${element}\"!`)
+    if (this.blockedSymbols.includes(element)) throw new Error(`Нельзя использовать в массиве dictionary в качестве буквы запрещенный символ \" ${element}\ "!`)
     if (element.length > this.letterLength) this.ConfigErrors.dictionaryError(element);
   }
   return this.Table.dictionary = dictionary

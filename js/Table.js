@@ -199,6 +199,11 @@ export default class Table {
     }
     stateCeil.setAttribute("colspan", +stateCeil.getAttribute("colspan") + 1)
     this.lastModalWindowIndex = undefined
+
+    if (insertColumnPos !== undefined) {
+      if (insertColumnPos === Table.insertElementPos.before) index -= 1
+    } else index = -1
+    return this.getColumnAt(index)
   }
 
   deleteRow(index=-1) {
@@ -217,19 +222,6 @@ export default class Table {
     } else {
       const lastRow = this.getRowAt(0)
       lastRow.querySelectorAll("input").forEach((input) => (input.value = ""))
-    }
-
-    // Обновляет словарь из таблицы
-    function updateRouletteDict() {
-      const tableWordInputs = Table.Instance.getWordInputs()
-      Roulette.Instance.dictionary = tableWordInputs.map((input) => input.value)
-      return updateInputDict()
-    }
-
-    // Обновляет строку инпута из словаря
-    function updateInputDict() {
-      const dictionary = document.querySelector(".grid__abc input")
-      return dictionary.value = Roulette.Instance.dictionary.filter((letter) => letter).join(", ")
     }
 
     return updateRouletteDict()
@@ -267,6 +259,26 @@ export default class Table {
       const IndexOflastElement = rowsTable.children.length !== 0 ? rowsTable.children.length-1 : 0
       rowsTable.children[IndexOflastElement].insertAdjacentElement("beforebegin", newRow)
     }
+    return newRow
+  }
+
+  setStates(states) {
+    this.clearColumns()
+    states.forEach(state => {
+      const newColumn = this.addColumn()
+      newColumn[0].value = state
+    })
+    this.deleteColumn(0)
+    return Roulette.Instance.states = states
+  }
+
+  setDictionary(dict) {
+    this.clearRows()
+    dict.forEach(letter => {
+      const newRow = this.addRow()
+      newRow.querySelector("input").value = letter
+    })
+    return updateRouletteDict()
   }
 }
 
@@ -275,4 +287,17 @@ function _validateIndex(index, ceilsLength) {
   index += 1
   if (index < 1 || index > ceilsLength) throw new RangeError("The index out of column's range")
   return index
+}
+
+// Обновляет словарь из таблицы
+function updateRouletteDict() {
+  const tableWordInputs = Table.Instance.getWordInputs()
+  Roulette.Instance.dictionary = tableWordInputs.map((input) => input.value)
+  return updateInputDict()
+}
+
+// Обновляет строку инпута из словаря
+function updateInputDict() {
+  const dictionary = document.querySelector(".grid__abc input")
+  return dictionary.value = Roulette.Instance.dictionary.filter((letter) => letter).join(", ")
 }

@@ -434,6 +434,7 @@ window.onload = () => {
         type: "json",
       })
     )
+
     link.download = "options.turing"
     link.click()
   }
@@ -458,8 +459,10 @@ window.onload = () => {
         const content = e.target.result
         FileImporter.applayConfig(file, content)
       }
+      reader.onerror = (e) => {throw new Error("Произошла ошибка при попытке импорта: не удалось прочитать файл!");}
       reader.readAsText(file)
-    }
+    } else throw new Error("Произошла ошибка при попытке импорта: не нашлось прикрепленного файла!");
+    
   }
   // ========== Импорт настроек ==========
 
